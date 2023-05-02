@@ -50,13 +50,13 @@ class imagesLocationsController {
             return res.json({
                 error: false,
                 image,
-                url: `http://${process.env.SERVER_ADRESS}:${process.env.PORT}/files/imagesLocations/${image.name}`
+                url: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/imagesLocations/${image.name}`
             })
        }).catch(() => {
             return res.status(400).json({
                 error: true,
                 message: 'Não existe imagem com o código ' + code,
-                url: `http://${process.env.SERVER_ADRESS}:${process.env.PORT}/files/not-found.png`
+                url: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/not-found.png`
             })
        })
     }

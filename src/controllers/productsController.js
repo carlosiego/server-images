@@ -45,14 +45,14 @@ class imagesProductsController {
             return res.json({
                 error: false,
                 image,
-                urlImage: `http://${process.env.SERVER_ADRESS}:${process.env.PORT}/files/imagesProducts/${image.name}`,
+                urlImage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/imagesProducts/${image.name}`,
                 urlVideo: image.video
             })
         }).catch(() => {
             return res.status(400).json({
                 error: true,
                 message: 'Não existe imagem com o código: ' + code,
-                urlImage: `http://${process.env.SERVER_ADRESS}:${process.env.PORT}/files/not-found.png`
+                urlImage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/not-found.png`
             })
         })
     }
