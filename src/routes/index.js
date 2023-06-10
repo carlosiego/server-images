@@ -1,12 +1,12 @@
 const express = require('express')
-const imagesProductsRoutes = require('./imagesProductsRoutes')
-const imagesLocationsRoutes = require('./imagesLocationsRoutes')
+const ProductsRoutes = require('./ProductsRoutes')
+const LocationsRoutes = require('./LocationsRoutes')
 
 const routes = (app) => {
     app.use(
         express.json(),
-        imagesProductsRoutes,
-        imagesLocationsRoutes
+        ProductsRoutes,
+        LocationsRoutes
     )
 }
 

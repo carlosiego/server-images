@@ -1,114 +1,96 @@
+// http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/not-found.png
 const ImageProducts = require('../models/imgproducts')
 const fs = require('fs')
+const ProductsRepository = require('../repositories/ProductsRepository')
 
-class imagesProductsController {
+class ProductsController {
 
-// ========================= CREATE ====================================================================================    
 
-    static uploadImageProducts = async (req, res) => {
-        if(req.file) {
-            let code = Number(req.file.originalname.split('.')[0])
-            let { video } = req.body
+    async createImage(req, res) {
 
-            await ImageProducts.create({ 
-                code,
-                name: req.file.originalname,
-                size: req.file.size,
-                video
-            })
-            .then(() => {
-                return res.status(201).json({
-                    error: false,
-                    message: 'Upload realizado com sucesso!'
-                })
-            })
-            .catch(() => {
-                return res.status(400).json({
-                    error: true,
-                    message: "Erro, já existe imagem com o mesmo código!"
-                })
-            })
-        }else {
-            return res.status(400).json({
-                error: true,
-                message: 'Erro: Upload não realizado, necessário que o arquivo seja do tipo PNG ou JPG!'
-            })
+        if(!req.file) {
+            return res.status(400).json({ error: 'Imagem é requerida'})
         }
+      
+        let code = Number(req.file.originalname.split('.')[0])
+        let { originalname: name, size } = req.file
+        let { video } = req.body
+
+        let imageExists = await ProductsRepository.findByCode(code)  
+        if(imageExists) {
+            return res.status(400).json({error: 'Já existe imagem com este código'})
+        }
+
+        let imageProduct = await ProductsRepository.create(code, name, size, video)  
+
+        res.json(imageProduct)
     }
 
-// ========================= READ ====================================================================================    
+    async listImage (req, res) {
 
-    static getImageProducts = async (req, res) => {
         const code = req.params.code
-        await ImageProducts.findOne({ where: { code: code } })
-        .then((image) => {
-            return res.json({
-                error: false,
-                image,
-                urlImage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/imagesProducts/${image.name}`,
-                urlVideo: image.video
-            })
-        }).catch(() => {
-            return res.status(400).json({
-                error: true,
-                message: 'Não existe imagem com o código: ' + code,
-                urlImage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/not-found.png`
-            })
-        })
-    }
 
-// ========================= UPDATE ====================================================================================    
-    
-    static changeImageProducts = async (req, res) => {
-        const codeCurrent = req.params.code
-        let { code, video } = req.body
-        console.log(video)
-        let isImage = await ImageProducts.findOne({ where: { code: codeCurrent}})
-        if(isImage){
-            let name = code + '.' + (isImage.name.split(".")[1] ? isImage.name.split(".")[1] : 'png')
-            await ImageProducts.update(
-                { 
-                  name,
-                  code,
-                  video: video || undefined
-                }, 
-                { where: { code: codeCurrent }}
-            )
-            .then(() => {
-                fs.rename(
-                    `./public/upload/imagesProducts/${isImage.name}`, 
-                    `./public/upload/imagesProducts/${name}`,
-                    (err) => {
-                        if(err){
-                            res.status(400).json({
-                                error: true,
-                                message: 'Erro, não foi possível alterar o nome da imagem no disco'
-                            })
-                        }else{
-                            res.status(201).json({
-                                error: false,
-                                message: 'Upload feito com sucesso',
-                            })
-                        }
-                    }
-                )
-            }).catch(() => {
-                res.status(400).json({
-                    error: true,
-                    message: `Erro, já existe imagem com o código ${code}!`
-                })
-            })
-        }else {
-            res.status(400).json({
-                error: true,
-                message: 'Erro, não existe imagem com o código: ' + codeCurrent
-            })
+        let imageProduct = await ProductsRepository.findByCode(code)
+
+        if(!imageProduct){
+            return res.status(404).json({error: 'Imagem não encontrada'})
         }
+
+        res.json(imageProduct)
+    }
+    
+    async updateImage (req, res) {
+
+        // 1° Verificando se existe imagem na requisição!
+        if(!req.file) {
+            return res.status(400).json({ error: 'Imagem é requerida'})
+        }
+
+        let codeCurrent = Number(req.params.code)
+        let { video } = req.body
+        let { originalname: name, size}= req.file
+        let newCode = Number(name.split('.')[0])
+        // 2° Verificando se a imagem a ser modificada existe!
+        let imageBD = await ProductsRepository.findByCode(codeCurrent)
+        let imageServer = fs.statSync(`./public/upload/imagesProducts/${imageBD.name}`)
+        return res.json({imageBD: !imageBD, imageServer: !imageServer})
+
+        if(!imageBD || !imageServer){
+            return res.status(404).json({ error: 'Não existe imagem com o código ' + codeCurrent })
+        }
+
+        // 3° Verificando se o novo código já está sendo utilizado por imagem diferente a ser atualizada!
+        let newCodeExists = await ProductsRepository.findByCode(newCode)
+
+        if(newCodeExists && newCodeExists.code !== codeCurrent) {
+            return res.status(400).json({ error: `O código ${newCode} já está sendo utilizado` })
+        }
+        // 4° Verificando se imagem existe no servidor!
+        // try {
+        //     let a = fs.statSync(`./public/upload/imagesProducts/${imageBD.name}`)
+        //     return res.json(a)
+        // }catch {
+        //     return res.status(404).json( { error: `Imagem não encontrada no servidor` } )
+        // }
+
+        fs.unlinkSync(`./public/upload/imagesProducts/${imageBD.name}`, (err) => {
+
+            if(err) {
+                console.log(err)
+                return res.status(400).json({ error: `Imagem não atualizada no servidor`})
+            }
+        })
+
+        let [imageUpdate] = await ProductsRepository.update({ name, codeCurrent, newCode, video, size })
+
+        if(!imageUpdate) {
+            res.status(500).json({ error: 'Erro no servidor'})
+        }
+
+        res.sendStatus(200)
     }
 
-// ========================= DELETE ====================================================================================    
-
-    static deleteImageProducts = async (req, res) => {
+    async deleteImage (req, res) {
         let code = req.params.code
         let isImage = await ImageProducts.findOne({ where: { code: code }})
 
@@ -135,4 +117,4 @@ class imagesProductsController {
     }
 }
 
-module.exports = imagesProductsController
+module.exports = new ProductsController()
