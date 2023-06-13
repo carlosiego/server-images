@@ -46,38 +46,50 @@ class ProductsController {
     }
 
     async updateImage(req, res) {
-
-        // 1° Verificando se existe imagem na requisição!
-        if (!req.file) {
-            return res.status(400).json({ error: 'Imagem é requerida' })
-        }
-
-        let codeCurrent = Number(req.params.code)
+        
+        let codeCurrent = req.params.code
         let { video, code: newCode } = req.body
-        let { originalname: name, size } = req.file
 
-        // 2° Verificando se existe novo código!
+        if (req.file){
+            let fileNameUpdate = req.file.filename
+            fs.unlinkSync(path.resolve(__dirname, '..', '..', 'public', 'upload', 'imagesProducts', fileNameUpdate))
+        }   
+
+        // 1° Verificando se existe novo código!
         if (!newCode) {
-            return res.status(404).json({ error: 'Código é requerido' })
+            return res.status(404).json({ error: 'Novo Código é requerido' })
         }
 
-        // 3° Verificando se a imagem a ser modificada existe!
+        // 2° Verificando se a imagem a ser modificada existe!
         let imageBD = await ProductsRepository.findByCode(codeCurrent)
-
-        if (!imageBD) {
+        console.log(req.file.filename)
+        if (!imageBD) { 
             return res.status(404).json({ error: 'Imagem não encontrada' })
         }
 
-        // 4° Verificando se o novo código já está em uso!
+        // 3° Verificando se o novo código já está em uso!
         let newCodeInUse = false
         if (codeCurrent !== newCode) {
             newCodeInUse = await ProductsRepository.findByCode(newCode)
         }
-        if (newCodeInUse) return res.status(400).json({ error: 'O código já está em uso' })
 
-        let imageUpdated = await ProductsRepository.update({ name, codeCurrent, newCode, video, size })
+        if (newCodeInUse) return res.status(400).json({ error: `O código ${newCode} já está em uso` })
 
-        res.json({ imageUpdated })
+        let imageUpdated;
+        // 4° Verificando se existe imagem na requisição!
+        if (req.file) {
+            let { originalname: name, size } = req.file
+            fs.unlinkSync(path.resolve(__dirname, '..', '..', 'public', 'upload', 'imagesProducts', imageBD.dataValues.name))
+            imageUpdated = await ProductsRepository.updateAll({ name, codeCurrent, newCode, video, size })
+        }else {
+            imageUpdated = await ProductsRepository.update({ codeCurrent, newCode, video })
+        }
+        // 5° Verificando se imagem foi atualizada no banco de dados
+        if(imageUpdated){
+            return res.sendStatus(200)
+        }
+
+        return res.status(400).json({ error: 'Imagem não atualizada, erro no servidor'})
 }
 
     async deleteImage(req, res) {

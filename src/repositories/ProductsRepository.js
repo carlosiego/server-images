@@ -21,13 +21,26 @@ class ProductsRepository {
         return image;
     }
 
-    async update({ name, codeCurrent, newCode, video, size }) {
+    async update({ codeCurrent, newCode, video}) {
+
+        let image = await ImageProducts.update(
+            {
+                code: newCode,
+                video: video ? video : undefined
+            },
+            { where: { code: codeCurrent } }
+        )
+        
+        return image;
+    }
+
+    async updateAll({name, codeCurrent, newCode, video, size }) {
 
         let image = await ImageProducts.update(
             {
                 name,
                 code: newCode,
-                video,
+                video: video ? video : undefined,
                 size
             },
             { where: { code: codeCurrent } }

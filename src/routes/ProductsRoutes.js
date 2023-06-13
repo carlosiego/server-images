@@ -7,7 +7,7 @@ ProductsRoutes
 
     .post(`/${process.env.SECRET_API}/images/products`, uploadProducts.single('image'), ProductsController.createImage)
     .get(`/${process.env.SECRET_API}/images/products/code/:code`, ProductsController.listImage)
-    .put(`/${process.env.SECRET_API}/images/products/code/:code`, ProductsController.updateImage)
+    .put(`/${process.env.SECRET_API}/images/products/code/:code`, uploadProducts.single('image'), ProductsController.updateImage)
     .delete(`/${process.env.SECRET_API}/images/products/code/:code`, ProductsController.deleteImage)
 
 
