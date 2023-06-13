@@ -11,7 +11,7 @@ class ProductsController {
         if (!req.file) {
             return res.status(400).json({ error: 'Imagem é requerida' })
         }
-
+        console.log(req.file)
         let { filename: name, size } = req.file
         let { video, code } = req.body
 
@@ -24,7 +24,7 @@ class ProductsController {
         if (imageExists) {
             let imagePath = path.resolve(__dirname, '..', '..', 'public', 'upload', 'imagesProducts', name)
             fs.unlinkSync(imagePath)
-            return res.status(400).json({ error: 'Já existe imagem com este código' })
+            return res.status(400).json({ error: `Já existe imagem com o código ${code}` })
         }
 
         let imageCreated = await ProductsRepository.create({ code, name, size, video })
@@ -42,7 +42,7 @@ class ProductsController {
             return res.status(404).json({ error: 'Imagem não encontrada' })
         }
 
-        res.json(imageProduct)
+        res.json({...imageProduct.dataValues, pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/imagesProducts/${imageProduct.name}` })
     }
 
     async updateImage(req, res) {
@@ -75,7 +75,7 @@ class ProductsController {
         }
         if (newCodeInUse) return res.status(400).json({ error: 'O código já está em uso' })
 
-        let imageUpdated = await ProductsRepository.update({{ name, codeCurrent, newCode, video, size }})
+        let imageUpdated = await ProductsRepository.update({ name, codeCurrent, newCode, video, size })
 
         res.json({ imageUpdated })
 }
