@@ -48,7 +48,7 @@ const ImageLocations = db.define('IMGLOCATIONS', {
         type: Sequelize.STRING,
         allowNull: true
     }
-    
+
 })
 
 // ImageLocations.sync()

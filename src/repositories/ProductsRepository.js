@@ -2,15 +2,15 @@ const ImageProducts = require('../models/imgproducts')
 
 class ProductsRepository {
 
-    async create( code, name, size, video ) {
+    async create({ code, name, size, video }) {
 
-         let imageProduct = await ImageProducts.create({ 
+        let imageProduct = await ImageProducts.create({
             code,
             name,
             size,
             video
         })
-        console.log(imageProduct)
+
         return imageProduct;
     }
 
@@ -24,13 +24,13 @@ class ProductsRepository {
     async update({ name, codeCurrent, newCode, video, size }) {
 
         let image = await ImageProducts.update(
-            { 
-              name,
-              code: newCode,
-              video,
-              size
-            }, 
-            { where: { code: codeCurrent }}
+            {
+                name,
+                code: newCode,
+                video,
+                size
+            },
+            { where: { code: codeCurrent } }
         )
 
         return image;

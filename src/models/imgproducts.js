@@ -13,7 +13,7 @@ const ImageProducts = db.define('IMGPRODUCTS', {
         type: Sequelize.STRING,
         allowNull: false,
     },
-    
+
     size: {
         type: Sequelize.INTEGER,
         allowNull: false
@@ -23,7 +23,7 @@ const ImageProducts = db.define('IMGPRODUCTS', {
         type: Sequelize.STRING,
         allowNull: true
     }
-}) 
+})
 
 // ImageProducts.sync()
 
