@@ -1,0 +1,9 @@
+envs
+
+- PORT
+- DB_NAME
+- DB_USER
+- DB_PASS
+- DB_HOST
+- SECRET_API
+- SERVER_ADDRESS
