@@ -21,6 +21,12 @@ class ProductsRepository {
         return image;
     }
 
+    async findByName(name) {
+        let image = await ImageProducts.findOne({ where: { name: name}})
+
+        return image;
+    }
+
     async update({ codeCurrent, newCode, video}) {
 
         let image = await ImageProducts.update(
