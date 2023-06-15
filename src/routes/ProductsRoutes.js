@@ -4,7 +4,6 @@ const ProductsRoutes = express.Router()
 const uploadProducts = require('../middlewares/uploadProducts')
 
 ProductsRoutes
-
     .post(`/${process.env.SECRET_API}/images/products`, uploadProducts.single('image'), ProductsController.createImage)
     .get(`/${process.env.SECRET_API}/images/products/code/:code`, ProductsController.listImage)
     .put(`/${process.env.SECRET_API}/images/products/code/:code`, uploadProducts.single('image'), ProductsController.updateImage)

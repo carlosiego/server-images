@@ -1,15 +1,11 @@
 const Sequelize = require('sequelize')
 const db = require('./dbConfig.js')
+const ImageProducts = require('./imgproducts.js')
 
 const ImageLocations = db.define('IMGLOCATIONS', {
 
-    code: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        primaryKey: true
-    },
-
     name: {
+        primaryKey: true,
         type: Sequelize.STRING,
         allowNull: false
     },
@@ -47,9 +43,19 @@ const ImageLocations = db.define('IMGLOCATIONS', {
     description: {
         type: Sequelize.STRING,
         allowNull: true
+    },
+
+    imageProductCode: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'IMGPRODUCTS',
+            key: 'code'
+        }
     }
 
 })
+
 
 // ImageLocations.sync()
 

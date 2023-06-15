@@ -25,6 +25,12 @@ const ImageProducts = db.define('IMGPRODUCTS', {
     }
 })
 
+// ImageProducts.hasMany(ImageLocations, {
+//     foreignKey: 'imageProductId',
+//     as: 'locations'
+// });
+
+
 // ImageProducts.sync()
 
 module.exports = ImageProducts
