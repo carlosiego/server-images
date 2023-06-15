@@ -2,11 +2,11 @@ const ImageProducts = require('../models/imgproducts')
 
 class ProductsRepository {
 
-    async create({ code, name, size, video }) {
+    async create({ code, filename, size, video }) {
 
         let imageProduct = await ImageProducts.create({
             code,
-            name,
+            name: filename,
             size,
             video
         })
@@ -22,12 +22,12 @@ class ProductsRepository {
     }
 
     async findByName(name) {
-        let image = await ImageProducts.findOne({ where: { name: name}})
+        let image = await ImageProducts.findOne({ where: { name: name } })
 
         return image;
     }
 
-    async update({ codeCurrent, newCode, video}) {
+    async update({ codeCurrent, newCode, video }) {
 
         let image = await ImageProducts.update(
             {
@@ -36,11 +36,11 @@ class ProductsRepository {
             },
             { where: { code: codeCurrent } }
         )
-        
+
         return image;
     }
 
-    async updateAll({name, codeCurrent, newCode, video, size }) {
+    async updateAll({ name, codeCurrent, newCode, video, size }) {
 
         let image = await ImageProducts.update(
             {
@@ -53,6 +53,14 @@ class ProductsRepository {
         )
 
         return image;
+    }
+
+    async deleteByCode(code) {
+        try {
+            ImageProducts.destroy({ where: { code } })
+        } catch (error) {
+            console.log('auau')
+        }
     }
 }
 
