@@ -10,6 +10,13 @@ class LocationsRepository {
 
         return image;
     }
+
+    async findByCode({ code }) {
+
+        let images = await ImageLocations.findAll({ where: { code }})
+
+        return images;
+    }
 }
 
 module.exports = new LocationsRepository()

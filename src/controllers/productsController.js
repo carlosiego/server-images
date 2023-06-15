@@ -34,12 +34,16 @@ class ProductsController {
         const { code } = req.params
 
         let imageProduct = await ProductsRepository.findByCode(code)
+        let imageWithPath = {}
 
-        if (!imageProduct) {
-            return res.status(404).json({ error: 'Imagem não encontrada' })
+        if (imageProduct) {
+            imageWithPath = {
+                ...imageProduct.dataValues,
+                pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${imageProduct.name}`
+            }
         }
 
-        res.json({ ...imageProduct.dataValues, pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/imagesProducts/${imageProduct.name}` })
+        return res.json(imageWithPath)
     }
 
     async updateImage(req, res) {

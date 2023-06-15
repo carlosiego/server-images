@@ -5,9 +5,6 @@ const fs = require('fs')
 
 class LocationsController {
 
-
-    // ========================= CREATE ====================================================================================    
-
     async createImage(req, res) {
 
         if (!req.file) return res.status(400).json({ error: 'Imagem é requerida' })
@@ -15,8 +12,8 @@ class LocationsController {
         
         let { code, storehouse, street, side, shelf, column, description } = req.body
         let { size, filename: name } = req.file
-        console.log(typeof code)
-        if(typeof code !== 'number'){ // FAZER ISSO PARA AS OUTRAS FUNÇÕESSSSSS
+
+        if(typeof code !== 'number'){ 
             await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
             return res.json({ error: `O código tem que ser do tipo número`})
         }
@@ -41,24 +38,23 @@ class LocationsController {
         return res.json(imageUpdated)
     }
 
-    // ========================= READ ====================================================================================    
+    async listImages(req, res) {
 
-    async listImage(req, res) {
-        let code = req.params.code
-        await ImageLocations.findOne({ where: { code: code } })
-            .then((image) => {
-                return res.json({
-                    error: false,
-                    image,
-                    url: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/imagesLocations/${image.name}`
-                })
-            }).catch(() => {
-                return res.status(400).json({
-                    error: true,
-                    message: 'Não existe imagem com o código ' + code,
-                    url: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/not-found.png`
-                })
-            })
+        let { code } = req.params
+
+        let images = await LocationsRepository.findByCode({ code })
+        let imagesWithPath = []
+
+        if(images){
+            imagesWithPath = images.map(image => ({
+                ...image.dataValues,
+                path: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_LOCATIONS}/${image.name}`
+                
+            }));
+        }
+
+        return res.json(imagesWithPath)
+
     }
 
     // ========================= UPDATE ====================================================================================    
