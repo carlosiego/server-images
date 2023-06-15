@@ -17,6 +17,49 @@ class LocationsRepository {
 
         return images;
     }
+
+    async findByName({ name }) {
+        
+        let image = await ImageLocations.findOne({ where: { name }})
+
+        return image;
+    }
+
+    async update({ nameCurrent, newName, code, size, storehouse, street, side, shelf, column, description }) {
+
+        let image = await ImageLocations.update(
+            {
+                name: newName,
+                size,
+                storehouse: storehouse || undefined,
+                street: street || undefined,
+                side: side || undefined,
+                shelf: shelf || undefined,
+                column: column || undefined,
+                description: description || undefined,
+                code
+            },
+            { where: { name: nameCurrent } })
+
+        return image;
+    }
+
+    async updateAll({ nameCurrent, code, storehouse, street, side, shelf, column, description }) {
+
+        let image = await ImageLocations.update(
+            {
+                storehouse: storehouse || undefined,
+                street: street || undefined,
+                side: side || undefined,
+                shelf: shelf || undefined,
+                column: column || undefined,
+                description: description || undefined,
+                code
+            },
+            { where: { name: nameCurrent } })
+
+        return image;
+    }
 }
 
 module.exports = new LocationsRepository()

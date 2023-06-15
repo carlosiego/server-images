@@ -34,7 +34,7 @@ class ProductsController {
         const { code } = req.params
 
         let imageProduct = await ProductsRepository.findByCode(code)
-        let imageWithPath = {}
+        let imageWithPath = {};
 
         if (imageProduct) {
             imageWithPath = {

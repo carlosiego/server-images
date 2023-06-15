@@ -48,8 +48,7 @@ class LocationsController {
         if(images){
             imagesWithPath = images.map(image => ({
                 ...image.dataValues,
-                path: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_LOCATIONS}/${image.name}`
-                
+                path: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_LOCATIONS}/${image.name}`            
             }));
         }
 
@@ -57,59 +56,37 @@ class LocationsController {
 
     }
 
-    // ========================= UPDATE ====================================================================================    
-
     async updateImage(req, res) {
 
-        let codeCurrent = req.params.code
+        let { name: nameCurrent } = req.params
         let { code, storehouse, street, side, shelf, column, description } = req.body
 
-        let isImage = await ImageLocations.findOne({ where: { code: codeCurrent } })
-        if (isImage) {
-            let name = 'loc_' + code + '.' + (isImage.name.split(".")[1] ? isImage.name.split(".")[1] : 'png')
-            await ImageLocations.update(
-                {
-                    code: code,
-                    name: name,
-                    storehouse: storehouse || undefined,
-                    street: street || undefined,
-                    side: side || undefined,
-                    shelf: shelf || undefined,
-                    column: column || undefined,
-                    description: description || undefined,
-                },
-                { where: { code: codeCurrent } })
-                .then(() => {
-                    fs.rename(
-                        `./public/upload/imagesLocations/${isImage.name}`,
-                        `./public/upload/imagesLocations/${name}`,
-                        (err) => {
-                            if (err) {
-                                res.status(400).json({
-                                    error: true,
-                                    message: 'Erro, não foi possível alterar o nome da imagem no disco!'
-                                })
-                            } else {
-                                res.status(201).json({
-                                    error: false,
-                                    message: 'Modificação realizada com sucesso!',
+        if(typeof code !== 'number') {
+            if(req.file) await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: req.file.filename})
+            return res.status(400).json({error: 'Código é requerido'})
+        }
 
-                                })
-                            }
-                        }
-                    )
-                }).catch(() => {
-                    return res.status(400).json({
-                        error: true,
-                        message: `Erro, já existe imagem com o código ${code}!`
-                    })
-                })
-        } else {
-            res.status(400).json({
-                error: true,
-                message: 'Não existe imagem com este código: ' + codeCurrent
+        let imageExists = await LocationsRepository.findByName({ name })
+
+        if(!imageExists) {
+            if(req.file) await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: req.file.filename})
+            return res.status(400).json({error: `Imagem com o nome ${name} não existe`})
+        }
+
+        let imageUpdated;
+
+        if(req.file){
+            let { size, filename: newName } = req.file
+            imageUpdated = await LocationsRepository.updateAll({
+                nameCurrent, newName, code, size, storehouse, street, side, shelf, column, description
             })
         }
+
+        imageUpdated = await LocationsRepository.update({
+            name, code, storehouse, street, side, shelf, column, description
+        })
+
+
     }
 
     // ========================= DELETE ====================================================================================    
