@@ -12,7 +12,7 @@ class ProductsController {
 
         let { filename, size } = req.file
         let { video, code } = req.body
-        let dir = 'imagesProducts'
+        
         if (!code) {
             res.status(400).json({ error: 'Código é requerido' })
         }
@@ -20,7 +20,7 @@ class ProductsController {
         let imageExists = await ProductsRepository.findByCode(code)
 
         if (imageExists) {
-            await HandleImageServer.deleteImage({ dir, filename })
+            await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
             return res.status(400).json({ error: `Já existe imagem com o código ${code}` })
         }
 
@@ -46,25 +46,25 @@ class ProductsController {
 
         let codeCurrent = req.params.code
         let { video, code: newCode } = req.body
-        let dir = 'imagesProducts'
+        
         let filename;
         // 1° Verificando se existe novo código!
         // Se não existir e a requisição tiver uma imagem, exclua a imagem !
         if (!newCode) {
             if (req.file) {
                 filename = req.file.filename
-                await HandleImageServer.deleteImage({ dir, filename })
+                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
             }
             return res.status(404).json({ error: 'Novo Código é requerido' })
         }
 
         // 2° Verificando se a imagem a ser modificada existe!
-        // Se a imagem a ser modifica não existir, exclua a imagem enviada!
+        // Se a imagem a ser modificada não existir, exclua a imagem enviada!
         let imageBD = await ProductsRepository.findByCode(codeCurrent)
         if (!imageBD) {
             if (req.file) {
                 filename = req.file.filename
-                await HandleImageServer.deleteImage({ dir, filename })
+                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
             }
             return res.status(404).json({ error: `Imagem com o código ${codeCurrent} não encontrada` })
         }
@@ -78,7 +78,7 @@ class ProductsController {
         if (newCodeInUse) {
             if (req.file) {
                 filename = req.file.filename
-                await HandleImageServer.deleteImage({ dir, filename })
+                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
             }
             return res.status(400).json({ error: `O código ${newCode} já está em uso` })
         }
@@ -96,7 +96,7 @@ class ProductsController {
         if (imageUpdated) {
             if (req.file) {
                 filename = imageBD.name
-                await HandleImageServer.deleteImage({ dir, filename })
+                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
             }
             return res.sendStatus(200)
         }
@@ -106,7 +106,6 @@ class ProductsController {
 
     async deleteImage(req, res) {
 
-        let dir = 'imagesProducts'
         let { code } = req.params
 
         let imageExists = await ProductsRepository.findByCode(code)
@@ -114,15 +113,19 @@ class ProductsController {
         if (imageExists) {
             let filename = imageExists.name
             try {
-                await ProductsRepository.deleteByCode(code)
-                await HandleImageServer.deleteImage({ dir, filename })
+                await Promise.all([
+                    ProductsRepository.deleteByCode(code),
+                    HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
+                ])
             } catch (error) {
                 console.log('error')
+                return res.status(404).json({ error: `Não foi possível deletar imagem` })
             }
             return res.sendStatus(200)
-        } else {
-            return res.status(404).json({ error: `Imagem com o código ${code} não encontrado` })
         }
+
+        return res.status(404).json({ error: `Imagem com o código ${code} não encontrado` })
+
     }
 }
 

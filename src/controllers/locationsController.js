@@ -1,5 +1,6 @@
 const ImageLocations = require('../models/imglocations')
 const LocationsRepository = require('../repositories/LocationsRepository')
+const HandleImageServer = require('../HandleImageServer/index')
 const fs = require('fs')
 
 class LocationsController {
@@ -11,18 +12,29 @@ class LocationsController {
 
         if (!req.file) return res.status(400).json({ error: 'Imagem é requerida' })
 
-
+        
         let { code, storehouse, street, side, shelf, column, description } = req.body
-        let { size, originalname: name } = req.file
+        let { size, filename: name } = req.file
 
-        if (!code) return res.status(400).json({ error: 'Codigo é requerido' })
+        if (!code) {
+            await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
+            return res.status(400).json({ error: 'Codigo é requerido' })
 
-        // puxar outra tabela pra procurar por cod
+        } 
+        if (!storehouse) {
+            await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
+            return res.status(400).json({ error: 'Localidade é requerida' })
 
+        }
 
         let imageUpdated = await LocationsRepository.create({ name, size, storehouse, street, side, shelf, column, description, code })
 
-        return res.json('kk')
+        if (!imageUpdated) {
+            await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
+            return res.status(400).json({ error: 'Imagem não criada' })
+        } 
+        
+        return res.json(imageUpdated)
     }
 
     // ========================= READ ====================================================================================    

@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize')
 const db = require('./dbConfig.js')
-const ImageProducts = require('./imgproducts.js')
 
 const ImageLocations = db.define('IMGLOCATIONS', {
 
@@ -45,13 +44,9 @@ const ImageLocations = db.define('IMGLOCATIONS', {
         allowNull: true
     },
 
-    imageProductCode: {
+    code: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-            model: 'IMGPRODUCTS',
-            key: 'code'
-        }
     }
 
 })
