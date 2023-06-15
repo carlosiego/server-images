@@ -11,10 +11,15 @@ class LocationsController {
     async createImage(req, res) {
 
         if (!req.file) return res.status(400).json({ error: 'Imagem é requerida' })
-
+    
         
         let { code, storehouse, street, side, shelf, column, description } = req.body
         let { size, filename: name } = req.file
+        console.log(typeof code)
+        if(typeof code !== 'number'){ // FAZER ISSO PARA AS OUTRAS FUNÇÕESSSSSS
+            await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
+            return res.json({ error: `O código tem que ser do tipo número`})
+        }
 
         if (!code) {
             await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
@@ -24,7 +29,6 @@ class LocationsController {
         if (!storehouse) {
             await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
             return res.status(400).json({ error: 'Localidade é requerida' })
-
         }
 
         let imageUpdated = await LocationsRepository.create({ name, size, storehouse, street, side, shelf, column, description, code })
