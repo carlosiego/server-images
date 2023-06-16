@@ -112,23 +112,16 @@ class ProductsController {
 
         let { code } = req.params
 
-        let imageExists = await ProductsRepository.findByCode(code)
+        let image = await ProductsRepository.findByCode(code)
 
-        if (imageExists) {
-            let filename = imageExists.name
-            try {
-                await Promise.all([
-                    ProductsRepository.deleteByCode(code),
-                    HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
-                ])
-            } catch (error) {
-                console.log('error')
-                return res.status(404).json({ error: `Não foi possível deletar imagem` })
-            }
-            return res.sendStatus(200)
-        }
+        if(!image) return res.status(400).json({error: 'Não existe imagem com o código ' + code})
 
-        return res.status(404).json({ error: `Imagem com o código ${code} não encontrado` })
+        Promise.all([
+            ProductsRepository.deleteByCode(code),
+            HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: image.name })
+        ])
+
+        res.sendStatus(200)
 
     }
 }

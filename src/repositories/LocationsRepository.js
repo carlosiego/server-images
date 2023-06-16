@@ -11,14 +11,14 @@ class LocationsRepository {
         return image;
     }
 
-    async findByCode({ code }) {
+    async findByCode(code) {
 
         let images = await ImageLocations.findAll({ where: { code } })
 
         return images;
     }
 
-    async findByName({ name }) {
+    async findByName(name) {
 
         let image = await ImageLocations.findOne({ where: { name } })
 
@@ -61,7 +61,7 @@ class LocationsRepository {
         return image;
     }
 
-    async deleteByName({ name }) {
+    async deleteByName(name) {
         
         let image = await ImageLocations.destroy({ where: { name }})
 

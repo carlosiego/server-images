@@ -39,7 +39,7 @@ class LocationsController {
 
         let { code } = req.params
 
-        let images = await LocationsRepository.findByCode({ code })
+        let images = await LocationsRepository.findByCode(code)
         let imagesWithPath = []
 
         if (images) {
@@ -66,7 +66,7 @@ class LocationsController {
             return res.status(400).json({ error: `Código tem que ser do tipo número` })
         }
 
-        let imageExists = await LocationsRepository.findByName({ name: nameCurrent })
+        let imageExists = await LocationsRepository.findByName(nameCurrent)
         // 2° Verificando se a imagem existe no banco de dados
         if (!imageExists) {
             if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: req.file.filename })
@@ -93,17 +93,19 @@ class LocationsController {
 
     }
 
-    // ========================= DELETE ====================================================================================    
-
     async deleteImage(req, res) {
 
         let { name } = req.params
+        
+        let image = await LocationsRepository.findByName(name)
 
-        let imageDeleted = await LocationsRepository.deleteByName({name})
+        if(!image) return res.status(400).json({error: 'Não existe imagem com o nome ' + name})
 
-        if(!imageDeleted) return res.status(400).json({error: 'Não foi possivel deletar imagem'})
-
-        await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name})
+        Promise.all([
+            LocationsRepository.deleteByName(name),
+            HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name})
+        ])
+            
         res.sendStatus(200)
 
     }
