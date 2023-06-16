@@ -56,11 +56,9 @@ class ProductsRepository {
     }
 
     async deleteByCode(code) {
-        try {
-            ImageProducts.destroy({ where: { code } })
-        } catch (error) {
-            console.log('auau')
-        }
+
+        await ImageProducts.destroy({ where: { code } })
+
     }
 }
 

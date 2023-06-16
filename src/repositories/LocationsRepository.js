@@ -63,9 +63,8 @@ class LocationsRepository {
 
     async deleteByName(name) {
         
-        let image = await ImageLocations.destroy({ where: { name }})
+        await ImageLocations.destroy({ where: { name }})
 
-        return image
     }
 }
 

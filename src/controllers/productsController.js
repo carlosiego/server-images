@@ -12,9 +12,15 @@ class ProductsController {
 
         let { filename, size } = req.file
         let { video, code } = req.body
-        
+        code = Number(code)
+
+        if (isNaN(code)) {
+            if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
+            return res.status(400).json({ error: `Código tem que ser do tipo número` })
+        }
+
         if (!code) {
-            res.status(400).json({ error: 'Código é requerido' })
+            return res.status(400).json({ error: 'Código é requerido' })
         }
 
         let imageExists = await ProductsRepository.findByCode(code)
@@ -54,10 +60,16 @@ class ProductsController {
         let filename;
         // 1° Verificando se existe novo código!
         // Se não existir e a requisição tiver uma imagem, exclua a imagem !
+        newCode = Number(newCode)
+
+        if (isNaN(newCode)) {
+            if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
+            return res.status(400).json({ error: `Código tem que ser do tipo número` })
+        }
+
         if (!newCode) {
             if (req.file) {
-                filename = req.file.filename
-                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
+                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
             }
             return res.status(404).json({ error: 'Novo Código é requerido' })
         }
@@ -67,8 +79,7 @@ class ProductsController {
         let imageBD = await ProductsRepository.findByCode(codeCurrent)
         if (!imageBD) {
             if (req.file) {
-                filename = req.file.filename
-                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
+                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
             }
             return res.status(404).json({ error: `Imagem com o código ${codeCurrent} não encontrada` })
         }
@@ -81,15 +92,13 @@ class ProductsController {
         // Se o novo código já estiver em uso por outra imagem que não é a que vai ser atualizada, exclua a imagem enviada!
         if (newCodeInUse) {
             if (req.file) {
-                filename = req.file.filename
-                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
+                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
             }
             return res.status(400).json({ error: `O código ${newCode} já está em uso` })
         }
 
         let imageUpdated;
         // 4° Verificando se existe imagem na requisição!
-        // Se existir imagem na requisição 
         if (req.file) {
             let { filename: name, size } = req.file
             imageUpdated = await ProductsRepository.updateAll({ name, codeCurrent, newCode, video, size })
