@@ -8,21 +8,20 @@ class LocationsController {
     async createImage(req, res) {
 
         if (!req.file) return res.status(400).json({ error: 'Imagem é requerida' })
-    
-        
+
         let { code, storehouse, street, side, shelf, column, description } = req.body
         let { size, filename: name } = req.file
-
-        if(typeof code !== 'number'){ 
+        code = Number(code)
+        if (typeof code !== 'number') {
             await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
-            return res.json({ error: `O código tem que ser do tipo número`})
+            return res.json({ error: `O código tem que ser do tipo número` })
         }
 
         if (!code) {
             await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
-            return res.status(400).json({ error: 'Codigo é requerido' })
+            return res.json({ error: `Código é requerido` })
+        }
 
-        } 
         if (!storehouse) {
             await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
             return res.status(400).json({ error: 'Localidade é requerida' })
@@ -33,8 +32,8 @@ class LocationsController {
         if (!imageUpdated) {
             await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
             return res.status(400).json({ error: 'Imagem não criada' })
-        } 
-        
+        }
+
         return res.json(imageUpdated)
     }
 
@@ -45,10 +44,10 @@ class LocationsController {
         let images = await LocationsRepository.findByCode({ code })
         let imagesWithPath = []
 
-        if(images){
+        if (images) {
             imagesWithPath = images.map(image => ({
                 ...image.dataValues,
-                path: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_LOCATIONS}/${image.name}`            
+                path: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_LOCATIONS}/${image.name}`
             }));
         }
 
@@ -60,32 +59,49 @@ class LocationsController {
 
         let { name: nameCurrent } = req.params
         let { code, storehouse, street, side, shelf, column, description } = req.body
-
-        if(typeof code !== 'number') {
-            if(req.file) await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: req.file.filename})
-            return res.status(400).json({error: 'Código é requerido'})
+        if (req.file) {
+            let { size, filename } = req.file
+        }
+        code = Number(code)
+        console.log('pppppppppppppppppp' + filename)
+        if (typeof code !== 'number') {
+            if (req.file) {
+                await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename })
+            }
+            return res.status(400).json({ error: 'Código é requerido' })
         }
 
-        let imageExists = await LocationsRepository.findByName({ name })
+        if (!code) {
+            if (req.file) {
+                filename = req.file.filename
+                await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename })
+            }
+            return res.json({ error: `Código é requerido` })
+        }
 
-        if(!imageExists) {
-            if(req.file) await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: req.file.filename})
-            return res.status(400).json({error: `Imagem com o nome ${name} não existe`})
+        let imageExists = await LocationsRepository.findByName({ nameCurrent })
+
+        if (!imageExists) {
+            if (req.file) await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: filename })
+            return res.status(400).json({ error: `Imagem com o nome ${nameCurrent} não existe` })
         }
 
         let imageUpdated;
 
-        if(req.file){
-            let { size, filename: newName } = req.file
+        if (req.file) {
+
             imageUpdated = await LocationsRepository.updateAll({
-                nameCurrent, newName, code, size, storehouse, street, side, shelf, column, description
+                nameCurrent, filename, code, size, storehouse, street, side, shelf, column, description
             })
         }
 
         imageUpdated = await LocationsRepository.update({
-            name, code, storehouse, street, side, shelf, column, description
+            nameCurrent, code, storehouse, street, side, shelf, column, description
         })
 
+        if (imageUpdated) return res.status(400).json({ error: 'Não foi possivel atualizar imagem' })
+
+        return res.json(imageUpdated)
 
     }
 

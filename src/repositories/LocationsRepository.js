@@ -13,53 +13,54 @@ class LocationsRepository {
 
     async findByCode({ code }) {
 
-        let images = await ImageLocations.findAll({ where: { code }})
+        let images = await ImageLocations.findAll({ where: { code } })
 
         return images;
     }
 
     async findByName({ name }) {
-        
-        let image = await ImageLocations.findOne({ where: { name }})
+
+        let image = await ImageLocations.findOne({ where: { name } })
 
         return image;
     }
 
-    async update({ nameCurrent, newName, code, size, storehouse, street, side, shelf, column, description }) {
+    async update({ nameCurrent, code, storehouse, street, side, shelf, column, description }) {
 
         let image = await ImageLocations.update(
             {
-                name: newName,
+                storehouse: storehouse || undefined,
+                street: street,
+                side: side,
+                shelf: shelf,
+                column: column,
+                description: description,
+                code: code || undefined
+            },
+            { where: { name: nameCurrent } })
+
+        return image;
+    }
+
+    async updateAll({ nameCurrent, filename, code, size, storehouse, street, side, shelf, column, description }) {
+
+        let image = await ImageLocations.update(
+            {
+                name: filename,
                 size,
                 storehouse: storehouse || undefined,
-                street: street || undefined,
-                side: side || undefined,
-                shelf: shelf || undefined,
-                column: column || undefined,
-                description: description || undefined,
-                code
+                street: street,
+                side: side,
+                shelf: shelf,
+                column: column,
+                description: description,
+                code: code || undefined
             },
             { where: { name: nameCurrent } })
 
         return image;
     }
 
-    async updateAll({ nameCurrent, code, storehouse, street, side, shelf, column, description }) {
-
-        let image = await ImageLocations.update(
-            {
-                storehouse: storehouse || undefined,
-                street: street || undefined,
-                side: side || undefined,
-                shelf: shelf || undefined,
-                column: column || undefined,
-                description: description || undefined,
-                code
-            },
-            { where: { name: nameCurrent } })
-
-        return image;
-    }
 }
 
 module.exports = new LocationsRepository()
