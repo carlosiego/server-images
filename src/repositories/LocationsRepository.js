@@ -41,7 +41,7 @@ class LocationsRepository {
 
         return image;
     }
-
+    
     async updateAll({ nameCurrent, filename, code, size, storehouse, street, side, shelf, column, description }) {
 
         let image = await ImageLocations.update(
@@ -61,6 +61,12 @@ class LocationsRepository {
         return image;
     }
 
+    async deleteByName({ name }) {
+        
+        let image = await ImageLocations.destroy({ where: { name }})
+
+        return image
+    }
 }
 
 module.exports = new LocationsRepository()

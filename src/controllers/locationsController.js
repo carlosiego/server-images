@@ -1,7 +1,5 @@
-const ImageLocations = require('../models/imglocations')
 const LocationsRepository = require('../repositories/LocationsRepository')
 const HandleImageServer = require('../HandleImageServer/index')
-const fs = require('fs')
 
 class LocationsController {
 
@@ -59,78 +57,55 @@ class LocationsController {
 
         let { name: nameCurrent } = req.params
         let { code, storehouse, street, side, shelf, column, description } = req.body
-        if (req.file) {
-            let { size, filename } = req.file
-        }
         code = Number(code)
-        console.log('pppppppppppppppppp' + filename)
-        if (typeof code !== 'number') {
-            if (req.file) {
-                await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename })
-            }
-            return res.status(400).json({ error: 'Código é requerido' })
+ 
+        // 1° Verificando se o código é do tipo número
+        if (isNaN(code)) {
+            if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: req.file.filename })
+
+            return res.status(400).json({ error: `Código tem que ser do tipo número` })
         }
 
-        if (!code) {
-            if (req.file) {
-                filename = req.file.filename
-                await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename })
-            }
-            return res.json({ error: `Código é requerido` })
-        }
-
-        let imageExists = await LocationsRepository.findByName({ nameCurrent })
-
+        let imageExists = await LocationsRepository.findByName({ name: nameCurrent })
+        // 2° Verificando se a imagem existe no banco de dados
         if (!imageExists) {
-            if (req.file) await HandleImageServer({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: filename })
+            if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: req.file.filename })
             return res.status(400).json({ error: `Imagem com o nome ${nameCurrent} não existe` })
         }
 
         let imageUpdated;
-
+        // 3° Verificando se o update tem imagem, se sim atualize a imagem no disco
         if (req.file) {
-
+            let { filename, size } = req.file
+            await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: imageExists.name})
             imageUpdated = await LocationsRepository.updateAll({
                 nameCurrent, filename, code, size, storehouse, street, side, shelf, column, description
             })
+        }else {
+            imageUpdated = await LocationsRepository.update({
+                nameCurrent, code, storehouse, street, side, shelf, column, description
+            })
         }
 
-        imageUpdated = await LocationsRepository.update({
-            nameCurrent, code, storehouse, street, side, shelf, column, description
-        })
+        if (!imageUpdated) return res.status(400).json({ error: 'Não foi possivel atualizar imagem' })
 
-        if (imageUpdated) return res.status(400).json({ error: 'Não foi possivel atualizar imagem' })
-
-        return res.json(imageUpdated)
+        return res.sendStatus(200)
 
     }
 
     // ========================= DELETE ====================================================================================    
 
     async deleteImage(req, res) {
-        let code = req.params.code
-        let isImage = await ImageLocations.findOne({ where: { code } })
 
-        if (isImage) {
-            await ImageLocations.destroy({ where: { code } })
-                .then(() => {
-                    fs.unlinkSync(`./public/upload/imagesLocations/${isImage.name}`)
-                    return res.json({
-                        error: false,
-                        message: 'Imagem excluída com sucesso!'
-                    })
-                }).catch(() => {
-                    return res.json({
-                        error: true,
-                        message: 'Erro, não foi possível excluir a imagem com o código ' + code
-                    })
-                })
-        } else {
-            return res.json({
-                error: true,
-                message: 'Não existe imagem com o código ' + code
-            })
-        }
+        let { name } = req.params
+
+        let imageDeleted = await LocationsRepository.deleteByName({name})
+
+        if(!imageDeleted) return res.status(400).json({error: 'Não foi possivel deletar imagem'})
+
+        await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name})
+        res.sendStatus(200)
+
     }
 
 }
