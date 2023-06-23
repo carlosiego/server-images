@@ -1,5 +1,5 @@
 const express = require('express')
-const LocationsController = require('../controllers/LocationsController')
+const LocationsController = require('../controllers/locationsController')
 const LocationsRoutes = express.Router()
 const uploadLocations = require('../middlewares/uploadLocations')
 
