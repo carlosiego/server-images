@@ -5,7 +5,8 @@ const express = require('express')
 const routes = require('./routes/index.js')
 const path = require('path')
 const app = express()
- 
+const compression = require('compression')
+
 app.use('/files', express.static(path.resolve(__dirname, "..", "public", "upload")))
 
 app.use(express.json())
@@ -17,6 +18,8 @@ app.use((req, res, next) => {
   next();
 });
 
+
+app.use(compression())
 routes(app)
 
 app.use((error, req, res, next) => {
