@@ -10,7 +10,7 @@ class LocationsController {
         let { code, storehouse, street, side, shelf, column, description } = req.body
         let { size, filename: name } = req.file
         code = Number(code)
-        if (typeof code !== 'number') {
+        if (isNaN(code)) {
             await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_LOCATIONS, filename: name })
             return res.json({ error: `O código tem que ser do tipo número` })
         }

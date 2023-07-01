@@ -5,7 +5,7 @@ const { v4 } = require('uuid')
 const uploadLocations = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, path.resolve(__dirname, '..', '..', 'public', 'upload', process.env.DIR_IMAGES_LOCATIONS));
+      cb(null, path.resolve(__dirname, '..', '..', 'uploads', process.env.DIR_IMAGES_LOCATIONS));
 
     },
     filename: (req, file, cb) => {

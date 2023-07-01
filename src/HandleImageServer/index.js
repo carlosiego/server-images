@@ -23,11 +23,11 @@ class HandleImageServer {
     async deleteImage({ dir, filename }) {
 
         try {
-            fs.unlinkSync(path.resolve(__dirname, '..', '..', 'public', 'upload', dir, filename))
+            fs.unlinkSync(path.resolve(__dirname, '..', '..', 'uploads', dir, filename))
         } catch {
-            let lastImage = this.getLatestImage(path.resolve(__dirname, '..', '..', 'public', 'upload', dir))
+            let lastImage = this.getLatestImage(path.resolve(__dirname, '..', '..', 'uploads', dir))
             if (lastImage) {
-                let lastImagePath = path.resolve(__dirname, '..', '..', 'public', 'upload', dir, lastImage)
+                let lastImagePath = path.resolve(__dirname, '..', '..', 'uploads', dir, lastImage)
                 let imageExistsBD = await ProductsRepository.findByName(lastImage)
 
                 if (!imageExistsBD) {
