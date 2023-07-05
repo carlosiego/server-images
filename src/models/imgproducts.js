@@ -25,6 +25,6 @@ const ImageProducts = db.define('IMGPRODUCTS', {
     }
 })
 
-// ImageProducts.sync()
+ImageProducts.sync()
 
 module.exports = ImageProducts

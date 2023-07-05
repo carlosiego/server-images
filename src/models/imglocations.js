@@ -52,6 +52,6 @@ const ImageLocations = db.define('IMGLOCATIONS', {
 })
 
 
-// ImageLocations.sync()
+ImageLocations.sync()
 
 module.exports = ImageLocations
