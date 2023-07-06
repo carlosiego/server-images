@@ -1,1 +1,34 @@
 CREATE DATABASE fmetal character set utf8mb4 collate utf8mb4_unicode_ci;
+
+CREATE TABLE PRODUCTS (
+	code INT PRIMARY KEY,
+	imgprod_id INT,
+    imgloc_id INT NULL,
+    video_id INT NULL,
+    FOREIGN KEY (imgprod_id) REFERENCES IMGPRODUCTS(id),
+    FOREIGN KEY (imgloc_id) REFERENCES IMGLOCATIONS(id),
+    FOREIGN KEY (video_id) REFERENCES VIDEOSPRODUCTS(id)
+);
+
+CREATE TABLE IMGPRODUCTS (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(150) NOT NULL,
+	size INT NOT NULL
+);
+
+CREATE TABLE VIDEOSPRODUCTS (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    link VARCHAR(150) NOT NULL
+);
+
+CREATE TABLE IMGLOCATIONS (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(150) NOT NULL,
+    size INT NOT NULL,
+    storehouse VARCHAR(150) NOT NULL,
+    street VARCHAR(100),
+    side VARCHAR(100),
+    shelf VARCHAR(100),
+    column_name VARCHAR(100),
+    description VARCHAR(250)
+);
