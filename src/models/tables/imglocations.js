@@ -4,9 +4,9 @@ const db = require('../dbConfig.js')
 const ImgLocations = db.define('IMGLOCATIONS', {
 
     id: {
-        primaryKey: true,
         type: Sequelize.INTEGER,
-        allowNull: false
+        primaryKey: true,
+        autoIncrement: true,
     },
 
     name: {

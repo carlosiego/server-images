@@ -5,7 +5,6 @@ const uploadLocations = require('../middlewares/uploadLocations')
 
 
 LocationsRoutes
-    // ========================================= IMAGES LOCATIONS ====================================================================
     .post(`/images/locations`, uploadLocations.single('image'), LocationsController.createImage)
     .get(`/images/locations/code/:code`, LocationsController.listImages)
     .put(`/images/locations/name/:name`, uploadLocations.single('image'), LocationsController.updateImage)

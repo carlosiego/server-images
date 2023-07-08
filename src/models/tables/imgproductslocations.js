@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
-const db = require('../dbConfig.js')
+const db = require('../dbConfig')
 
-const ImgProducts = db.define('IMGPRODUCTS', {
+const ImgProductsLocations = db.define('IMGPRODUCTSLOCATIONS', {
 
     product_id: {
         type: Sequelize.INTEGER,
@@ -12,11 +12,11 @@ const ImgProducts = db.define('IMGPRODUCTS', {
         }
     },
 
-    image_id: {
+    image_location_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         references: {
-            model: 'IMAGES',
+            model: 'IMGLOCATIONS',
             key: 'id'
         }
     },
@@ -28,7 +28,7 @@ const ImgProducts = db.define('IMGPRODUCTS', {
 
     updatedBy: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: false
     },
 
     createdAt: {
@@ -41,7 +41,6 @@ const ImgProducts = db.define('IMGPRODUCTS', {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         onUpdate: Sequelize.literal('CURRENT_TIMESTAMP')
     }
-});
+})
 
-
-module.exports = ImgProducts
+module.exports = ImgProductsLocations

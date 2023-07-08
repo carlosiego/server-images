@@ -1,15 +1,12 @@
-const Products = require('./tables/products')
+const Images = require('./tables/images')
 const ImgLocations = require('./tables/imglocations')
 const ImgProducts = require('./tables/imgproducts')
-const VideosProducts = require('./tables/videosproducts')
+const ImgProductsLocations = require('./tables/imgproductslocations')
+const Products = require('./tables/products')
 
 
 Products.sync()
 ImgLocations.sync()
 ImgProducts.sync()
-VideosProducts.sync()
-
-
-Products.belongsTo(ImgProducts, { foreignKey: 'imgprod_id'});
-Products.belongsTo(ImgLocations, { foreignKey: 'imgloc_id'});
-Products.belongsTo(VideosProducts, { foreignKey: 'video_id'});
+Images.sync()
+ImgProductsLocations.sync()
