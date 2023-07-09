@@ -1,4 +1,4 @@
-const ImageLocations = require('../models/imglocations')
+// const ImageLocations = require('../models/imglocations')
 
 class LocationsRepository {
 
@@ -41,7 +41,7 @@ class LocationsRepository {
 
         return image;
     }
-    
+
     async updateAll({ nameCurrent, filename, code, size, storehouse, street, side, shelf, column, description }) {
 
         let image = await ImageLocations.update(
@@ -62,8 +62,8 @@ class LocationsRepository {
     }
 
     async deleteByName(name) {
-        
-        await ImageLocations.destroy({ where: { name }})
+
+        await ImageLocations.destroy({ where: { name } })
 
     }
 }

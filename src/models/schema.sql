@@ -1,5 +1,7 @@
 CREATE DATABASE fmetal character set utf8mb4 collate utf8mb4_unicode_ci;
 
+USE fmetal;
+
 CREATE TABLE PRODUCTS (
 	code INT PRIMARY KEY,
 	link VARCHAR(250)
