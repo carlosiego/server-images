@@ -29,18 +29,9 @@ const ImgProductsLocations = db.define('IMGPRODUCTSLOCATIONS', {
     updatedBy: {
         type: Sequelize.STRING,
         allowNull: false
-    },
-
-    createdAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-    },
-
-    updatedAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        onUpdate: Sequelize.literal('CURRENT_TIMESTAMP')
     }
 })
+
+ImgProductsLocations.sync()
 
 module.exports = ImgProductsLocations

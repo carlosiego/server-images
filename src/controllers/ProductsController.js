@@ -11,7 +11,7 @@ class ProductsController {
         }
 
         let { filename, size } = req.file
-        let { video, code } = req.body
+        let { link, code } = req.body
         code = Number(code)
 
         if (isNaN(code)) {
@@ -23,16 +23,16 @@ class ProductsController {
             return res.status(400).json({ error: 'Código é requerido' })
         }
 
-        let imageExists = await ProductsRepository.findByCode(code)
+        // let imageExists = await ProductsRepository.findByCode(code)
 
-        if (imageExists) {
-            await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
-            return res.status(400).json({ error: `Já existe imagem com o código ${code}` })
-        }
+        // if (imageExists) {
+        //     await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
+        //     return res.status(400).json({ error: `Já existe imagem com o código ${code}` })
+        // }
 
-        let imageCreated = await ProductsRepository.create({ code, filename, size, video })
+        // let imageCreated = await ProductsRepository.create({ code, filename, size, link })
 
-        return res.json(imageCreated)
+        return res.json('ok')
     }
 
     async listImage(req, res) {
@@ -56,7 +56,7 @@ class ProductsController {
 
         let codeCurrent = req.params.code
         let { video, code: newCode } = req.body
-        
+
         let filename;
         // 1° Verificando se existe novo código!
         // Se não existir e a requisição tiver uma imagem, exclua a imagem !
@@ -123,7 +123,7 @@ class ProductsController {
 
         let image = await ProductsRepository.findByCode(code)
 
-        if(!image) return res.status(400).json({error: 'Não existe imagem com o código ' + code})
+        if (!image) return res.status(400).json({ error: 'Não existe imagem com o código ' + code })
 
         Promise.all([
             ProductsRepository.deleteByCode(code),

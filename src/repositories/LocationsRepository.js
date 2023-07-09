@@ -1,4 +1,4 @@
-// const ImageLocations = require('../models/imglocations')
+const ImageLocations = require('../models/tables/imglocations')
 
 class LocationsRepository {
 

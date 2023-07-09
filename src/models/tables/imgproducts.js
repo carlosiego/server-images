@@ -29,19 +29,9 @@ const ImgProducts = db.define('IMGPRODUCTS', {
     updatedBy: {
         type: Sequelize.STRING,
         allowNull: true
-    },
-
-    createdAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-    },
-
-    updatedAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        onUpdate: Sequelize.literal('CURRENT_TIMESTAMP')
     }
 });
 
+ImgProducts.sync()
 
 module.exports = ImgProducts

@@ -1,4 +1,4 @@
-// const ImageProducts = require('../models/tables/imgproducts')
+const ImageProducts = require('../models/tables/imgproducts')
 
 class ProductsRepository {
 

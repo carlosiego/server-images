@@ -1,11 +1,18 @@
 require('dotenv').config()
 require('express-async-errors')
 
+require('./models/tables/images')
+require('./models/tables/imglocations')
+require('./models/tables/imgproducts')
+require('./models/tables/imgproductslocations')
+require('./models/tables/products')
+
 const express = require('express')
 const routes = require('./routes/index.js')
 const path = require('path')
 const app = express()
 const compression = require('compression')
+
 app.use('/files', express.static(path.resolve(__dirname, "..", "uploads")))
 
 app.use(express.json())

@@ -22,6 +22,8 @@ const Images = db.define('IMAGES', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
     }
-})
+}, { timestamp: false })
+
+Images.sync()
 
 module.exports = Images

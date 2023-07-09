@@ -47,9 +47,12 @@ const ImgLocations = db.define('IMGLOCATIONS', {
     description: {
         type: Sequelize.STRING,
         allowNull: true
+
+
     }
+}, { timestamps: false }
+);
 
-})
-
+ImgLocations.sync()
 
 module.exports = ImgLocations

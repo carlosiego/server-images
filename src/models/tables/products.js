@@ -12,7 +12,7 @@ const Products = db.define('PRODUCTS', {
         type: Sequelize.STRING,
         allowNull: true
     }
-})
+}, { timestamp: false })
 
 Products.sync()
 
