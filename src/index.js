@@ -5,7 +5,6 @@ const express = require('express')
 const routes = require('./routes/index.js')
 const path = require('path')
 const app = express()
-const limiter = require('./rateLimit')
 const compression = require('compression')
 app.use('/files', express.static(path.resolve(__dirname, "..", "uploads")))
 
@@ -18,7 +17,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(limiter)
 app.use(compression())
 routes(app)
 
