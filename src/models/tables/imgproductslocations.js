@@ -32,6 +32,6 @@ const ImgProductsLocations = db.define('IMGPRODUCTSLOCATIONS', {
     }
 })
 
-// ImgProductsLocations.sync()
+ImgProductsLocations.sync()
 
 module.exports = ImgProductsLocations

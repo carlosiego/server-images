@@ -12,9 +12,9 @@ const Products = db.define('PRODUCTS', {
         type: Sequelize.STRING,
         allowNull: true
     }
-}, { timestamp: false })
+}, { timestamps: false })
 
-// Products.sync()
+Products.sync()
 
 
 module.exports = Products

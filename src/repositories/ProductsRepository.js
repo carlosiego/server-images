@@ -1,22 +1,37 @@
-const ImageProducts = require('../models/tables/imgproducts')
+const Images = require('../models/tables/images')
+const Products = require('../models/tables/products')
+const ImgProducts = require('../models/tables/imgproducts')
 
 class ProductsRepository {
 
-    async create({ code, filename, size, video }) {
+    async createImage({ code, filename, size, link, main, createdBy}) {
 
-        let imageProduct = await ImageProducts.create({
-            code,
-            name: filename,
-            size,
-            video
-        })
+			let tableProducts = await Products.create({
+					code,
+					link
+			})
 
-        return imageProduct;
+			let tableImages = await Images.create({
+				name: filename,
+				size,
+				main
+			})
+
+			console.log('PRODUTOS CODE: ' + tableProducts.code,'\n IMAGES ID: ' + tableImages.id)
+
+			let tableImgProducts = await ImgProducts.create({
+				product_id: tableProducts.code,
+				image_id: tableImages.id,
+				createdBy
+			})
+
+
+			return [tableProducts, tableImages];
     }
 
     async findByCode(code) {
 
-        let image = await ImageProducts.findOne({ where: { code: code } })
+        let image = await Products.findOne({ where: { code: code } })
 
         return image;
     }

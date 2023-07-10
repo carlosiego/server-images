@@ -7,47 +7,45 @@ class ProductsController {
 
   async createImage(req, res) {
 
-
-    let { link, code } = req.query
-
+    let { link, code, main, createdBy } = req.query
     code = Number(code)
 
 		if (isNaN(code)) {
-			// if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
 			return res.status(400).json({ error: `Código tem que ser do tipo número` })
 		}
 
 		if (!code) {
-				return res.status(400).json({ error: 'Código é requerido' })
+			return res.status(400).json({ error: 'Código é requerido' })
 		}
 
-		uploadProducts.single('image')(req, res, (err) => {
+		uploadProducts.single('image')(req, res, async (err) => {
 			if(err) {
 				console.log(err)
 				return res.status(400).json({error: 'Erro no upload da imagem'})
 			}
+			let { filename, size } = req.file
+
+			let imageCreated = await ProductsRepository.createImage({ code, filename, size, link, main, createdBy })
+			return res.json(imageCreated)
 		})
-		// let { filename, size } = req.file
-		// let imageCreated = await ProductsRepository.create({ code, filename, size, link })
-		return res.json('Sucesso')
 
   }
 
     async listImage(req, res) {
 
-        const { code } = req.params
+			const { code } = req.params
 
-        let imageProduct = await ProductsRepository.findByCode(code)
-        let imageWithPath = {};
+			let imageProduct = await ProductsRepository.findByCode(code)
+			let imageWithPath = {};
 
-        if (imageProduct) {
-            imageWithPath = {
-                ...imageProduct.dataValues,
-                pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${imageProduct.name}`
-            }
-        }
+			if (imageProduct) {
+				imageWithPath = {
+					...imageProduct.dataValues,
+					pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${imageProduct.name}`
+				}
+			}
 
-        return res.json(imageWithPath)
+				return res.json(imageWithPath)
     }
 
     async updateImage(req, res) {
