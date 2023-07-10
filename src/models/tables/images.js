@@ -24,6 +24,6 @@ const Images = db.define('IMAGES', {
     }
 }, { timestamp: false })
 
-Images.sync()
+// Images.sync()
 
 module.exports = Images

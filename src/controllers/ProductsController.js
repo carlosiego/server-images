@@ -1,39 +1,37 @@
 const ProductsRepository = require('../repositories/ProductsRepository')
 const HandleImageServer = require('../HandleImageServer')
+const uploadProducts = require('../middlewares/uploadProducts')
+
 
 class ProductsController {
 
+  async createImage(req, res) {
 
-    async createImage(req, res) {
 
-        if (!req.file) {
-            return res.status(400).json({ error: 'Imagem é requerida' })
-        }
+    let { link, code } = req.query
 
-        let { filename, size } = req.file
-        let { link, code } = req.body
-        code = Number(code)
+    code = Number(code)
 
-        if (isNaN(code)) {
-            if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-            return res.status(400).json({ error: `Código tem que ser do tipo número` })
-        }
+		if (isNaN(code)) {
+			// if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
+			return res.status(400).json({ error: `Código tem que ser do tipo número` })
+		}
 
-        if (!code) {
-            return res.status(400).json({ error: 'Código é requerido' })
-        }
+		if (!code) {
+				return res.status(400).json({ error: 'Código é requerido' })
+		}
 
-        // let imageExists = await ProductsRepository.findByCode(code)
+		uploadProducts.single('image')(req, res, (err) => {
+			if(err) {
+				console.log(err)
+				return res.status(400).json({error: 'Erro no upload da imagem'})
+			}
+		})
+		// let { filename, size } = req.file
+		// let imageCreated = await ProductsRepository.create({ code, filename, size, link })
+		return res.json('Sucesso')
 
-        // if (imageExists) {
-        //     await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
-        //     return res.status(400).json({ error: `Já existe imagem com o código ${code}` })
-        // }
-
-        // let imageCreated = await ProductsRepository.create({ code, filename, size, link })
-
-        return res.json('ok')
-    }
+  }
 
     async listImage(req, res) {
 

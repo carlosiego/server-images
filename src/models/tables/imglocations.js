@@ -53,6 +53,6 @@ const ImgLocations = db.define('IMGLOCATIONS', {
 }, { timestamps: false }
 );
 
-ImgLocations.sync()
+// ImgLocations.sync()
 
 module.exports = ImgLocations
