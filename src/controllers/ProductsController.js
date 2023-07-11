@@ -7,31 +7,38 @@ class ProductsController {
 
   async createImage(req, res) {
 
-    let { link, code, main, createdBy } = req.query
-    code = Number(code)
+    let { link, main, createdBy } = req.query
+		let { codes } = req.params
+		let productExists;
 
-		if (isNaN(code)) {
-			return res.status(400).json({ error: `Código tem que ser do tipo número` })
+		try {
+			codes = JSON.parse(codes)
+		}catch {
+			return res.status(400).json({error: 'Dados inválidos'})
 		}
 
-		if (!code) {
-			return res.status(400).json({ error: 'Código é requerido' })
-		}
+    if (codes.length === 0) {
+        return res.status(400).json({ error: 'Código é requerido' })
+    }
+		console.log(codes.length)
+		if (codes.length === 1 || !codes.length) {
+			return res.json('Só tem um')
+			// productExists = await ProductsRepository.findByCode(codes)
+	}
+		return res.json('mais de um')
 
-		let productExists = await ProductsRepository.findByCode(code)
+		// if(productExists) return res.status(400).json({ error: 'Código já existe' })
 
-		if(productExists) return res.status(400).json({error: 'Código já existe'})
+		// uploadProducts.single('image')(req, res, async (err) => {
+		// 	if(err) {
+		// 		console.log(err)
+		// 		return res.status(400).json({error: 'Erro no upload da imagem'})
+		// 	}
+		// 	let { filename, size } = req.file
 
-		uploadProducts.single('image')(req, res, async (err) => {
-			if(err) {
-				console.log(err)
-				return res.status(400).json({error: 'Erro no upload da imagem'})
-			}
-			let { filename, size } = req.file
-
-			let imageCreated = await ProductsRepository.createImage({ code, filename, size, link, main, createdBy })
-			return res.json(imageCreated)
-		})
+		// 	let imageCreated = await ProductsRepository.createImage({ code, filename, size, link, main, createdBy })
+		// 	return res.json(imageCreated)
+		// })
 
   }
 

@@ -14,7 +14,6 @@ const Products = db.define('PRODUCTS', {
     }
 }, { timestamps: false })
 
-Products.sync()
-
+// Products.sync()
 
 module.exports = Products
