@@ -18,6 +18,10 @@ class ProductsController {
 			return res.status(400).json({ error: 'Código é requerido' })
 		}
 
+		let productExists = await ProductsRepository.findByCode(code)
+
+		if(productExists) return res.status(400).json({error: 'Código já existe'})
+
 		uploadProducts.single('image')(req, res, async (err) => {
 			if(err) {
 				console.log(err)
