@@ -6,7 +6,7 @@ class ProductsController {
 
 		let { code, link } = req.body
 
-		if (typeof code === 'string') return res.json('é string')
+		if (typeof code === 'string') return res.status(400).json({ error: 'Código tem que ser do tipo número' })
 
 		const productExists = await ProductsRepository.findByCode(code)
 
@@ -31,13 +31,28 @@ class ProductsController {
 		let { link } = req.body
 		let { code } = req.params
 
-		const product = await ProductsRepository.findByCode(code)
+		const productExists = await ProductsRepository.findByCode(code)
 
-		if (!product) return res.status(404).json({ error: 'Produto não existe' })
+		if (!productExists) return res.status(404).json({ error: 'Produto não encontrado' })
 
-		const productRenewed = await ProductsRepository.updateImage(code, link)
+		const productWasRenewed = await ProductsRepository.updateImage(code, link)
 
-		if (!productRenewed) return res.status(400).json({ error: 'Não foi possível atualizar produto' })
+		if (!productWasRenewed) return res.status(400).json({ error: 'Não foi possível atualizar o produto' })
+
+		return res.sendStatus(200)
+	}
+
+	async deleteProduct(req, res) {
+
+		let { code } = req.params
+
+		let productExists = await ProductsRepository.findByCode(code)
+
+		if (!productExists) return res.status(404).json({ error: 'Produto não encontrado' })
+
+		let productDeleted = await ProductsRepository.deleteProduct(code)
+
+		if (!productDeleted) return res.status(400).json({ error: 'Não foi possível deletar o produto' })
 
 		return res.sendStatus(200)
 	}

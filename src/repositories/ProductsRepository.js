@@ -13,6 +13,7 @@ class ProductsRepository {
 	}
 
 	async findByCode(code) {
+
 		let product = await Products.findOne({
 			where: { code }
 		})
@@ -21,11 +22,19 @@ class ProductsRepository {
 	}
 
 	async updateImage(code, link) {
-		let productRenewed = Products.update({
+
+		let productWasRenewed = Products.update({
 			link
 		}, { where: { code } })
 
-		return productRenewed;
+		return productWasRenewed;
+	}
+
+	async deleteProduct(code) {
+
+		let productDeleted = await Products.destroy({ where: { code } })
+
+		return productDeleted
 	}
 }
 
