@@ -1,4 +1,4 @@
-const ProductsRepository = require('../repositories/ProductsRepository')
+const ProductsRepository = require('../repositories/ImgProductsRepository')
 const fs = require('fs')
 const path = require('path')
 

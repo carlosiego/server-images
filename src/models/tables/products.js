@@ -3,15 +3,15 @@ const db = require('../dbConfig')
 
 const Products = db.define('PRODUCTS', {
 
-    code: {
-        primaryKey: true,
-        type: Sequelize.INTEGER,
-    },
+	code: {
+		primaryKey: true,
+		type: Sequelize.INTEGER,
+	},
 
-    link: {
-        type: Sequelize.STRING,
-        allowNull: true
-    }
+	link: {
+		type: Sequelize.STRING,
+		allowNull: true
+	}
 }, { timestamps: false })
 
 // Products.sync()
