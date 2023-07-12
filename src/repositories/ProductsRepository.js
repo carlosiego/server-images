@@ -1,4 +1,5 @@
 const Products = require('../models/tables/products')
+const { Op } = require('sequelize')
 
 class ProductsRepository {
 
@@ -19,6 +20,19 @@ class ProductsRepository {
 		})
 
 		return product;
+	}
+
+	async findByCodes(codes) {
+
+		let products = await Products.findAll({
+			where: {
+				code: {
+					[Op.in]: codes
+				}
+			}
+		})
+
+		return products;
 	}
 
 	async updateImage(code, link) {

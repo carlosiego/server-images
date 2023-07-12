@@ -7,7 +7,7 @@ class ImgProductsController {
 
 	async createImage(req, res) {
 
-		let { link, main, createdBy } = req.query
+		let { main, createdBy } = req.query
 		let { codes } = req.params
 		let productExists;
 
@@ -35,7 +35,7 @@ class ImgProductsController {
 			}
 			let { filename, size } = req.file
 
-			let imageCreated = await ImgProductsRepository.createImage({ code, filename, size, link, main, createdBy })
+			let imageCreated = await ImgProductsRepository.createImage({ codes, filename, size, main, createdBy })
 			return res.json(imageCreated)
 		})
 

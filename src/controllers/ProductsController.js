@@ -26,6 +26,21 @@ class ProductsController {
 		return res.json(product)
 	}
 
+	async listProducts(req, res) {
+
+		let { codes } = req.params
+
+		try {
+			codes = JSON.parse(codes)
+		} catch {
+			return res.status(400).json({ error: 'Códigos tem que ser do tipo número' })
+		}
+
+		let products = await ProductsRepository.findByCodes(codes)
+
+		return res.json(products)
+	}
+
 	async updateProduct(req, res) {
 
 		let { link } = req.body
