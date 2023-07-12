@@ -19,6 +19,14 @@ class ProductsRepository {
 
 		return product;
 	}
+
+	async updateImage(code, link) {
+		let productRenewed = Products.update({
+			link
+		}, { where: { code } })
+
+		return productRenewed;
+	}
 }
 
 module.exports = new ProductsRepository()

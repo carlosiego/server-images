@@ -5,6 +5,7 @@ const ProductsRoutes = express.Router()
 ProductsRoutes
 
 	.post('/products', ProductsController.createProduct)
-
+	.get('/products/:code', ProductsController.listProduct)
+	.put('/products/:code', ProductsController.updateProduct)
 
 module.exports = ProductsRoutes
