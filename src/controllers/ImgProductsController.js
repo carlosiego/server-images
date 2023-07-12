@@ -1,7 +1,7 @@
 const ImgProductsRepository = require('../repositories/ImgProductsRepository')
 const HandleImageServer = require('../HandleImageServer')
 const uploadProducts = require('../middlewares/uploadProducts')
-
+const ProductsRepository = require('../repositories/ProductsRepository')
 
 class ImgProductsController {
 
@@ -9,24 +9,21 @@ class ImgProductsController {
 
 		let { main, createdBy } = req.query
 		let { codes } = req.params
-		let productExists;
-
+		let codesExistents;
+		let imagesToCreate
 		try {
-			codes = JSON.parse(codes)
+			codes = await JSON.parse(codes)
 		} catch {
 			return res.status(400).json({ error: 'Dados inválidos' })
 		}
+		// VERIFICAR O QUE VEM DE CODE AO MANDAR APENAS UM ITEM NO ARRAY
+		if (codes.length === 0) return res.status(400).json({ error: 'Código é requerido' })
 
-		if (codes.length === 0) {
-			return res.status(400).json({ error: 'Código é requerido' })
-		}
-		console.log(codes.length)
-		if (codes.length === 1 || !codes.length) {
-			return res.json('Só tem um')
-			// productExists = await ImgProductsRepository.findByCode(codes)
+		if (codes.length > 1) {
+			codesExistents = await ProductsRepository.findByCodes(codes)
 		}
 
-		if (productExists) return res.status(400).json({ error: 'Código já existe' })
+		if (codes.length !== codesExistents.length) return res.status(400).json({ error: 'Alguns produtos não encontrado, cadastre todos produtos antes de associar a imagem' })
 
 		uploadProducts.single('image')(req, res, async (err) => {
 			if (err) {
@@ -35,8 +32,22 @@ class ImgProductsController {
 			}
 			let { filename, size } = req.file
 
-			let imageCreated = await ImgProductsRepository.createImage({ codes, filename, size, main, createdBy })
-			return res.json(imageCreated)
+			if (codes.length === codesExistents.length) {
+				imagesToCreate = codes.map(code => (
+					{
+						code,
+						filename,
+						size,
+						main,
+						createdBy
+					}
+				))
+			}
+			console.log(imagesToCreate)
+			// await ImgProductsRepository.createImage(imagesToCreate)
+
+
+			return res.json(productsCreated)
 		})
 
 	}
