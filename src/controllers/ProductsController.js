@@ -23,6 +23,8 @@ class ProductsController {
 
 		const product = await ProductsRepository.findByCode(code)
 
+		if(!product) return res.status(404).json({error: 'Produto não encontrado'})
+
 		return res.json(product)
 	}
 
