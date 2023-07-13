@@ -10,20 +10,29 @@ class ImgProductsController {
 		let { main, createdBy } = req.query
 		let { codes } = req.params
 		let codesExistents;
-		let imagesToCreate
+		let imagesToCreate;
+
 		try {
 			codes = await JSON.parse(codes)
 		} catch {
-			return res.status(400).json({ error: 'Dados inválidos' })
+			return res.status(400).json({ error: 'Dados inválidos1' })
 		}
-		// VERIFICAR O QUE VEM DE CODE AO MANDAR APENAS UM ITEM NO ARRAY
-		if (codes.length === 0) return res.status(400).json({ error: 'Código é requerido' })
 
-		if (codes.length > 1) {
+		let isArray = Array.isArray(codes)
+		console.log(typeof codes)
+		console.log(codes.length)
+
+		if (isArray && codes.length === 0) return res.status(400).json({ error: 'Código é requerido' })
+
+		if (isArray && codes.length > 1) {
 			codesExistents = await ProductsRepository.findByCodes(codes)
 		}
 
-		if (codes.length !== codesExistents.length) return res.status(400).json({ error: 'Alguns produtos não encontrado, cadastre todos produtos antes de associar a imagem' })
+		if(Array.isArray(codesExistents)){
+			if (isArray && codes.length !== codesExistents.length) return res.status(400).json({ error: 'Alguns produtos não encontrado, cadastre todos produtos antes de associar a imagem' })
+		}
+
+		return res.json('ok')
 
 		uploadProducts.single('image')(req, res, async (err) => {
 			if (err) {
