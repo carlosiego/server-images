@@ -41,12 +41,11 @@ class ImgProductsController {
 
 		let { main, createdBy } = req.query
 		let { codes } = req.params
-		let productsExist
+		let productsExist = []
 		let imagesProductsToCreate
 		let productsCreated
 
 		if (!createdBy) return res.status(400).json({ error: 'Criador da Imagem é requerido' })
-
 
 		try {
 			codes = await JSON.parse(codes)
@@ -56,41 +55,31 @@ class ImgProductsController {
 
 		let isArray = Array.isArray(codes)
 
-		if (isArray && codes.length === 0 || isArray && codes.length === undefined) return res.status(400).json({ error: 'Código é requerido' })
+		if (!isArray || codes.length === 1) return res.status(400).json({ error: 'Dados inválidos' })
+		if (isArray && codes.length === 0) return res.status(400).json({ error: 'Código é requerido' })
 
-		if (isArray && codes.length > 1) {
-			productsExist = await ProductsRepository.findByCodes(codes)
-		} else {
-			let productExist = await ProductsRepository.findByCode(codes)
-			if (!productExist) return res.status(404).json({ error: 'Produto não existe' })
-		}
+		productsExist = await ProductsRepository.findByCodes(codes)
 
-		if (Array.isArray(productsExist)) {
-			if (isArray && codes.length !== productsExist.length) return res.status(400).json({ error: 'Alguns produtos não encontrado, cadastre todos produtos antes de associar a imagem' })
-		}
+		if (codes.length !== productsExist.length) return res.status(400).json({ error: 'Alguns produtos não existe, cadastre-os produtos antes de associar a imagem' })
 
 		uploadProducts.single('image')(req, res, async (err) => {
 			if (err) {
 				console.log(err)
 				return res.status(400).json({ error: 'Erro no upload da imagem' })
 			}
+
 			let { filename, size } = req.file
 
-			if (codes.length === 1 || typeof codes === "number") {
-				console.log(filename, size, main)
-				productsCreated = await ImgProductsRepository.createImage({ filename, size, main, codes, createdBy })
-				console.log('Numero hehe ou array com um misero item')
-				return res.json({ productsCreated })
-			} else {
-				imagesProductsToCreate = codes.map(code => ({
-					product_id: code,
-					createdBy
-				}))
+			imagesProductsToCreate = codes.map(code => ({
+				product_id: code,
+				createdBy
+			}))
 
-				productsCreated = await ImgProductsRepository.createImageWithManyCodes({ filename, size, main, imagesProductsToCreate })
-			}
-			return res.json('productsCreated')
-		})
+			productsCreated = await ImgProductsRepository.createImageWithManyCodes({ filename, size, main, imagesProductsToCreate })
+
+			return res.json(productsCreated)
+		}
+		)
 	}
 
 	async listImage(req, res) {
