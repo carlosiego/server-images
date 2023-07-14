@@ -4,7 +4,7 @@ const ImgProducts = require('../models/tables/imgproducts')
 
 class ImgProductsRepository {
 
-	async createImage({ filename, size, main = 0, codes, createdBy }) {
+	async createImage({ filename, size, main = 0, code, createdBy }) {
 
 		main = main === 1 ? 1 : 0
 
@@ -15,7 +15,7 @@ class ImgProductsRepository {
 		})
 
 		let tableImgProducts = await ImgProducts.create({
-			product_id: codes,
+			product_id: code,
 			image_id: imageCreated.id,
 			createdBy
 		})

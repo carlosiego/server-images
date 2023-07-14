@@ -4,6 +4,7 @@ const ImgProductsRoutes = express.Router()
 
 ImgProductsRoutes
 
+	.post(`/images/product/code/:code`, ImgProductsController.createImage)
 	.post(`/images/products/codes/:codes`, ImgProductsController.createImage)
 	.get(`/images/products/code/:code`, ImgProductsController.listImage)
 	// .put(`/images/products/code/:code`, uploadProducts.single('image'), ImgProductsController.updateImage)

@@ -8,10 +8,45 @@ class ImgProductsController {
 	async createImage(req, res) {
 
 		let { main, createdBy } = req.query
+		let { code } = req.params
+		let productCreated
+
+		code = Number(code)
+
+		if (isNaN(code)) return res.status(400).json({ error: 'Código tem que ser do tipo número' })
+
+		if (typeof code !== 'number') return res.status(400).json({ error: 'Código tem que ser do tipo número' })
+
+		if (!createdBy) return res.status(400).json({ error: 'Criador da Imagem é requerido' })
+
+		let productExist = await ProductsRepository.findByCode(code)
+		if (!productExist) return res.status(404).json({ error: 'Produto não existe' })
+
+		uploadProducts.single('image')(req, res, async (err) => {
+			if (err) {
+				console.log(err)
+				return res.status(400).json({ error: 'Erro no upload da imagem' })
+			}
+
+			let { filename, size } = req.file
+
+			productCreated = await ImgProductsRepository.createImage({ filename, size, main, code, createdBy })
+
+			return res.json(productCreated)
+
+		})
+	}
+
+	async createImageWithManyCodes(req, res) {
+
+		let { main, createdBy } = req.query
 		let { codes } = req.params
 		let productsExist
 		let imagesProductsToCreate
 		let productsCreated
+
+		if (!createdBy) return res.status(400).json({ error: 'Criador da Imagem é requerido' })
+
 
 		try {
 			codes = await JSON.parse(codes)
