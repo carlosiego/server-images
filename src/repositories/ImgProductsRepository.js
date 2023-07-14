@@ -4,29 +4,44 @@ const ImgProducts = require('../models/tables/imgproducts')
 
 class ImgProductsRepository {
 
-	async createImage({ code, filename, size, link, main, createdBy }) {
+	async createImage({ filename, size, main = 0, codes, createdBy }) {
 
-		let tableProducts = await Products.create({
-			code,
-			link
-		})
+		main = main === 1 ? 1 : 0
 
-		let tableImages = await Images.create({
+		let imageCreated = await Images.create({
 			name: filename,
 			size,
 			main
 		})
 
-		console.log('PRODUTOS CODE: ' + tableProducts.code, '\n IMAGES ID: ' + tableImages.id)
-
 		let tableImgProducts = await ImgProducts.create({
-			product_id: tableProducts.code,
-			image_id: tableImages.id,
+			product_id: codes,
+			image_id: imageCreated.id,
 			createdBy
 		})
 
+		return tableImgProducts;
+	}
 
-		return [tableProducts, tableImages];
+
+	async createImageWithManyCodes({ filename, size, main = 0, imagesProductsToCreate }) {
+
+		main = main === 1 ? 1 : 0
+
+		let imageCreated = await Images.create({
+			name: filename,
+			size,
+			main
+		})
+
+		let imagesProductsToCreateWithId = imagesProductsToCreate.map(item => ({
+			...item,
+			image_id: imageCreated.id
+		}))
+
+		let tableImgProducts = await ImgProducts.bulkCreate(imagesProductsToCreateWithId)
+
+		return tableImgProducts;
 	}
 
 	async findByCode(code) {

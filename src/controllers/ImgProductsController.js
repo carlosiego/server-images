@@ -9,8 +9,9 @@ class ImgProductsController {
 
 		let { main, createdBy } = req.query
 		let { codes } = req.params
-		let codesExistents;
-		let imagesToCreate;
+		let productsExist
+		let imagesProductsToCreate
+		let productsCreated
 
 		try {
 			codes = await JSON.parse(codes)
@@ -20,19 +21,18 @@ class ImgProductsController {
 
 		let isArray = Array.isArray(codes)
 
-		console.log(codes)
-		console.log(codes.length)
-		if (isArray && codes.length === 0 || codes.length === undefined) return res.status(400).json({ error: 'Código é requerido' })
+		if (isArray && codes.length === 0 || isArray && codes.length === undefined) return res.status(400).json({ error: 'Código é requerido' })
 
 		if (isArray && codes.length > 1) {
-			codesExistents = await ProductsRepository.findByCodes(codes)
+			productsExist = await ProductsRepository.findByCodes(codes)
+		} else {
+			let productExist = await ProductsRepository.findByCode(codes)
+			if (!productExist) return res.status(404).json({ error: 'Produto não existe' })
 		}
 
-		if (Array.isArray(codesExistents)) {
-			if (isArray && codes.length !== codesExistents.length) return res.status(400).json({ error: 'Alguns produtos não encontrado, cadastre todos produtos antes de associar a imagem' })
+		if (Array.isArray(productsExist)) {
+			if (isArray && codes.length !== productsExist.length) return res.status(400).json({ error: 'Alguns produtos não encontrado, cadastre todos produtos antes de associar a imagem' })
 		}
-
-		// return res.json({ codes })
 
 		uploadProducts.single('image')(req, res, async (err) => {
 			if (err) {
@@ -41,11 +41,20 @@ class ImgProductsController {
 			}
 			let { filename, size } = req.file
 
+			if (codes.length === 1 || typeof codes === "number") {
+				console.log(filename, size, main)
+				productsCreated = await ImgProductsRepository.createImage({ filename, size, main, codes, createdBy })
+				console.log('Numero hehe ou array com um misero item')
+				return res.json({ productsCreated })
+			} else {
+				imagesProductsToCreate = codes.map(code => ({
+					product_id: code,
+					createdBy
+				}))
 
-			await ImgProductsRepository.createImage(imagesToCreate)
-
-
-			return res.json(productsCreated)
+				productsCreated = await ImgProductsRepository.createImageWithManyCodes({ filename, size, main, imagesProductsToCreate })
+			}
+			return res.json('productsCreated')
 		})
 	}
 
