@@ -60,7 +60,7 @@ class ImgProductsController {
 
 		productsExist = await ProductsRepository.findByCodes(codes)
 
-		if (codes.length !== productsExist.length) return res.status(400).json({ error: 'Alguns produtos não existe, cadastre-os produtos antes de associar a imagem' })
+		if (codes.length !== productsExist.length) return res.status(400).json({ error: 'Alguns produtos não existe ou são repetidos, cadastre-os produtos antes de associar a imagem' })
 
 		uploadProducts.single('image')(req, res, async (err) => {
 			if (err) {
