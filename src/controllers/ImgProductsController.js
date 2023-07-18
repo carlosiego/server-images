@@ -87,14 +87,12 @@ class ImgProductsController {
 		const { code } = req.params
 
 		let imageProduct = await ImgProductsRepository.findByCode(code)
-		let imageWithPath = {};
+		let imageWithPath;
 
-		if (imageProduct) {
-			imageWithPath = {
-				...imageProduct.dataValues,
-				pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${imageProduct.name}`
-			}
-		}
+		imageWithPath = imageProduct.map(item => ({
+			...item,
+			pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${item.name}`
+		}))
 
 		return res.json(imageWithPath)
 	}

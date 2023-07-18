@@ -1,6 +1,8 @@
 const Images = require('../models/tables/images')
 const Products = require('../models/tables/products')
 const ImgProducts = require('../models/tables/imgproducts')
+const sequelize = require('../models/dbConfig')
+const { QueryTypes } = require('sequelize');
 
 class ImgProductsRepository {
 
@@ -46,7 +48,16 @@ class ImgProductsRepository {
 
 	async findByCode(code) {
 
-		let image = await Products.findOne({ where: { code: code } })
+		let image = await sequelize.query(
+			`SELECT
+				IMAGEs.name
+			FROM IMGPRODUCTS
+			JOIN IMAGEs ON IMGPRODUCTS.image_id = IMAGEs.id
+			WHERE IMGPRODUCTS.product_id = :code;`,
+			{
+				replacements: { code: code },
+				type: QueryTypes.SELECT
+			})
 
 		return image;
 	}
