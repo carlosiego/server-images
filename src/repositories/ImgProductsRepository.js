@@ -56,7 +56,7 @@ class ImgProductsRepository {
 			WHERE IMGPRODUCTS.product_id = :code;`,
 			{
 				replacements: { code: code },
-				type: QueryTypes.SELECT
+				type: QueryTypes.SELECT,
 			})
 
 		return image;

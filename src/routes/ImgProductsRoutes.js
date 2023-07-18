@@ -6,7 +6,7 @@ ImgProductsRoutes
 
 	.post(`/images/product/code/:code`, ImgProductsController.createImage)
 	.post(`/images/products/codes/:codes`, ImgProductsController.createImageWithManyCodes)
-	.get(`/images/products/code/:code`, ImgProductsController.listImage)
+	.get(`/images/products/code/:code`, ImgProductsController.listImageBycode)
 	// .put(`/images/products/code/:code`, uploadProducts.single('image'), ImgProductsController.updateImage)
 	.delete(`/images/products/code/:code`, ImgProductsController.deleteImage)
 

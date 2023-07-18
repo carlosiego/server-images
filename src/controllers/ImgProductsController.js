@@ -82,9 +82,15 @@ class ImgProductsController {
 		)
 	}
 
-	async listImage(req, res) {
+	async listImageBycode(req, res) {
 
-		const { code } = req.params
+		let { code } = req.params
+		code = Number(code)
+		console.log(isNaN(code))
+
+		if (isNaN(code)) {
+			return res.status(400).json({ error: 'Código tem que ser do tipo número' })
+		}
 
 		let imageProduct = await ImgProductsRepository.findByCode(code)
 		let imageWithPath;
