@@ -1,8 +1,8 @@
 const Images = require('../models/tables/images')
 const Products = require('../models/tables/products')
 const ImgProducts = require('../models/tables/imgproducts')
-const sequelize = require('../models/dbConfig')
-const { QueryTypes } = require('sequelize');
+const db = require('../models/dbConfig')
+const { QueryTypes, DatabaseError } = require('sequelize');
 
 class ImgProductsRepository {
 
@@ -48,11 +48,11 @@ class ImgProductsRepository {
 
 	async findByCode(code) {
 
-		let image = await sequelize.query(
+		let image = await db.query(
 			`SELECT
-				IMAGEs.name
+				IMAGES.name
 			FROM IMGPRODUCTS
-			JOIN IMAGEs ON IMGPRODUCTS.image_id = IMAGEs.id
+			JOIN IMAGES ON IMGPRODUCTS.image_id = IMAGES.id
 			WHERE IMGPRODUCTS.product_id = :code;`,
 			{
 				replacements: { code: code },
@@ -60,6 +60,49 @@ class ImgProductsRepository {
 			})
 
 		return image;
+	}
+
+	async findByCodes(codes) {
+
+		const subQueries = codes.map((code) => {
+			return (
+				`SELECT
+					IMGPRODUCTS.product_id,
+					IMAGES.name
+				FROM IMGPRODUCTS
+				JOIN IMAGES ON IMGPRODUCTS.image_id = IMAGES.id
+				WHERE IMGPRODUCTS.product_id = :code${code} AND IMAGES.main = 1
+				LIMIT 1;`
+			)
+		});
+
+		const fullQuery = subQueries.join(' UNION ALL ');
+
+		let image = await db.query(fullQuery, {
+			replacements: codes.reduce((acc, code) => {
+				acc[`code${code}`] = code;
+				return acc;
+			}, {}),
+			type: QueryTypes.SELECT
+		})
+		return image
+
+		// let images = await db.query(`
+		// 	SELECT
+		// 		IMGPRODUCTS.product_id,
+		// 		IMAGEs.name
+		// 	FROM IMGPRODUCTS
+		// 	JOIN IMAGES ON IMGPRODUCTS.image_id = IMAGES.id
+		// 	WHERE IMGPRODUCTS.product_id = ANY(:codes) AND IMAGES.main = 1
+		// 	LIMIT 1
+		// 	;`,
+		// 	{
+		// 		replacements: { codes: codes },
+		// 		type: QueryTypes.SELECT,
+		// 	}
+		// )
+
+		// return images
 	}
 
 	async findByName(name) {

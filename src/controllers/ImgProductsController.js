@@ -82,7 +82,7 @@ class ImgProductsController {
 		)
 	}
 
-	async listImageBycode(req, res) {
+	async listImageByCode(req, res) {
 
 		let { code } = req.params
 		code = Number(code)
@@ -101,6 +101,26 @@ class ImgProductsController {
 		}))
 
 		return res.json(imageWithPath)
+	}
+
+	async listImagesByCodes(req, res) {
+
+		let { codes } = req.params
+
+		try {
+			codes = await JSON.parse(codes)
+		} catch {
+			return res.status(400).json({ error: 'Dados inválidos' })
+		}
+
+		let isArray = Array.isArray(codes)
+
+		if (!isArray) return res.status(400).json({ error: 'Dados inválidos' })
+		if (isArray && codes.length === 0) return res.status(400).json({ error: 'Código é requerido' })
+
+		let images = await ImgProductsRepository.findByCodes(codes)
+
+		return res.json(images)
 	}
 
 	async updateImage(req, res) {
