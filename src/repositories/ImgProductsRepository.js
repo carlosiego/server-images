@@ -1,14 +1,13 @@
 const Images = require('../models/tables/images')
-const Products = require('../models/tables/products')
 const ImgProducts = require('../models/tables/imgproducts')
 const db = require('../models/dbConfig')
-const { QueryTypes, DatabaseError } = require('sequelize');
+const { QueryTypes } = require('sequelize');
 
 class ImgProductsRepository {
 
-	async createImage({ filename, size, main = 0, code, createdBy }) {
+	async createImage({ filename, size, main, code, createdBy }) {
 
-		main = main === 1 ? 1 : 0
+		main = main == 1 ? 1 : 0
 
 		let imageCreated = await Images.create({
 			name: filename,
@@ -25,10 +24,9 @@ class ImgProductsRepository {
 		return tableImgProducts;
 	}
 
+	async createImageWithManyCodes({ filename, size, main, imagesProductsToCreate }) {
 
-	async createImageWithManyCodes({ filename, size, main = 0, imagesProductsToCreate }) {
-
-		main = main === 1 ? 1 : 0
+		main = main == 1 ? 1 : 0
 
 		let imageCreated = await Images.create({
 			name: filename,
@@ -64,45 +62,24 @@ class ImgProductsRepository {
 
 	async findByCodes(codes) {
 
-		const subQueries = codes.map((code) => {
-			return (
+		let images = []
+		codes.map(async code => (
+			db.query(
 				`SELECT
 					IMGPRODUCTS.product_id,
-					IMAGES.name
+					IMAGEs.name
 				FROM IMGPRODUCTS
 				JOIN IMAGES ON IMGPRODUCTS.image_id = IMAGES.id
-				WHERE IMGPRODUCTS.product_id = :code${code} AND IMAGES.main = 1
-				LIMIT 1;`
-			)
-		});
+				WHERE IMGPRODUCTS.product_id = :code AND IMAGES.main = 1
+				LIMIT 1;`,
+				{
+					replacements: { code },
+					type: QueryTypes.SELECT
+				}
+			).then(res => {console.log(res[0]), images.push(res[0])})
+		));
 
-		const fullQuery = subQueries.join(' UNION ALL ');
-
-		let image = await db.query(fullQuery, {
-			replacements: codes.reduce((acc, code) => {
-				acc[`code${code}`] = code;
-				return acc;
-			}, {}),
-			type: QueryTypes.SELECT
-		})
-		return image
-
-		// let images = await db.query(`
-		// 	SELECT
-		// 		IMGPRODUCTS.product_id,
-		// 		IMAGEs.name
-		// 	FROM IMGPRODUCTS
-		// 	JOIN IMAGES ON IMGPRODUCTS.image_id = IMAGES.id
-		// 	WHERE IMGPRODUCTS.product_id = ANY(:codes) AND IMAGES.main = 1
-		// 	LIMIT 1
-		// 	;`,
-		// 	{
-		// 		replacements: { codes: codes },
-		// 		type: QueryTypes.SELECT,
-		// 	}
-		// )
-
-		// return images
+		return images;
 	}
 
 	async findByName(name) {
