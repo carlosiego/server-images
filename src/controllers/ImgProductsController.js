@@ -131,6 +131,10 @@ class ImgProductsController {
 		return res.json(uniqueImagesMainWithPath)
 	}
 
+	async listImageByName(req, res) {
+		res.json('ok')
+	}
+
 	async updateImage(req, res) {
 
 		let codeCurrent = req.params.code

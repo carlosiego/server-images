@@ -80,7 +80,7 @@ class ImgProductsRepository {
 	}
 
 	async findByName(name) {
-		let image = await ImageProducts.findOne({ where: { name: name } })
+		let image = await Images.findOne({ where: { name: name } })
 
 		return image;
 	}
