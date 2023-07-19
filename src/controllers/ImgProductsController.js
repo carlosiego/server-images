@@ -86,7 +86,6 @@ class ImgProductsController {
 
 		let { code } = req.params
 		code = Number(code)
-		console.log(isNaN(code))
 
 		if (isNaN(code)) {
 			return res.status(400).json({ error: 'Código tem que ser do tipo número' })
@@ -120,7 +119,16 @@ class ImgProductsController {
 
 		let images = await ImgProductsRepository.findByCodes(codes)
 
-		return res.json(images)
+		const uniqueImagesMainWithPath = images.reduce((result, image) => {
+			const existingImage = result.find((obj) => obj.product_id === image.product_id);
+			if (!existingImage) {
+				const pathimage = `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${image.name}`;
+				result.push({ ...image, pathimage });
+			}
+			return result;
+		}, []);
+
+		return res.json(uniqueImagesMainWithPath)
 	}
 
 	async updateImage(req, res) {

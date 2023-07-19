@@ -61,23 +61,20 @@ class ImgProductsRepository {
 	}
 
 	async findByCodes(codes) {
-
-		let images = []
-		codes.map(async code => (
-			db.query(
-				`SELECT
+		console.log(codes.length)
+		let images = await db.query(
+			`SELECT
 					IMGPRODUCTS.product_id,
 					IMAGEs.name
 				FROM IMGPRODUCTS
 				JOIN IMAGES ON IMGPRODUCTS.image_id = IMAGES.id
-				WHERE IMGPRODUCTS.product_id = :code AND IMAGES.main = 1
-				LIMIT 1;`,
-				{
-					replacements: { code },
-					type: QueryTypes.SELECT
-				}
-			).then(res => {console.log(res[0]), images.push(res[0])})
-		));
+				WHERE IMGPRODUCTS.product_id IN (:codes) AND IMAGES.main = 1
+				LIMIT :arrayLength;`,
+			{
+				replacements: { codes, arrayLength: codes.length },
+				type: QueryTypes.SELECT
+			}
+		)
 
 		return images;
 	}
