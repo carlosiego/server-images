@@ -132,72 +132,37 @@ class ImgProductsController {
 	}
 
 	async listImageByName(req, res) {
-		res.json('ok')
+
+		let { name } = req.params
+
+		let image = await ImgProductsRepository.findByName(name)
+
+		if (!image) return res.status(404).json({ error: 'Imagem não encontrada' })
+
+		return res.json(image)
 	}
 
-	async updateImage(req, res) {
+	async updateImageByName(req, res) {
 
-		let codeCurrent = req.params.code
-		let { video, code: newCode } = req.body
+		let { name } = req.params
+		let { main } = req.body
 
-		let filename;
-		// 1° Verificando se existe novo código!
-		// Se não existir e a requisição tiver uma imagem, exclua a imagem !
-		newCode = Number(newCode)
+		main = Number(main)
 
-		if (isNaN(newCode)) {
-			if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-			return res.status(400).json({ error: `Código tem que ser do tipo número` })
-		}
+		if (!main && main !== 0) return res.status(400).json({ error: 'Main tem que ser do tipo número' })
+		if (main !== 0 && main !== 1) return res.status(400).json({ error: 'Main tem que ser 0 ou 1' })
 
-		if (!newCode) {
-			if (req.file) {
-				await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-			}
-			return res.status(404).json({ error: 'Novo Código é requerido' })
-		}
+		let image = await ImgProductsRepository.findByName(name)
+		if (!image) return res.status(404).json({ error: 'Imagem não encontrada' })
 
-		// 2° Verificando se a imagem a ser modificada existe!
-		// Se a imagem a ser modificada não existir, exclua a imagem enviada!
-		let imageBD = await ImgProductsRepository.findByCode(codeCurrent)
-		if (!imageBD) {
-			if (req.file) {
-				await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-			}
-			return res.status(404).json({ error: `Imagem com o código ${codeCurrent} não encontrada` })
-		}
+		if (image.main && main === 1) return res.json({ message: 'Imagem já é principal' })
+		if (!image.main && main === 0) return res.json({ message: 'Imagem já é secundária' })
 
-		// 3° Verificando se o novo código já está em uso!
-		let newCodeInUse;
-		if (codeCurrent !== newCode) {
-			newCodeInUse = await ImgProductsRepository.findByCode(newCode)
-		}
-		// Se o novo código já estiver em uso por outra imagem que não é a que vai ser atualizada, exclua a imagem enviada!
-		if (newCodeInUse) {
-			if (req.file) {
-				await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-			}
-			return res.status(400).json({ error: `O código ${newCode} já está em uso` })
-		}
+		let imageWasUpdated = await ImgProductsRepository.update({ name, main })
 
-		let imageUpdated;
-		// 4° Verificando se existe imagem na requisição!
-		if (req.file) {
-			let { filename: name, size } = req.file
-			imageUpdated = await ImgProductsRepository.updateAll({ name, codeCurrent, newCode, video, size })
-		} else {
-			imageUpdated = await ImgProductsRepository.update({ codeCurrent, newCode, video })
-		}
-		// 5° Verificando se imagem foi atualizada no banco de dados, e se sim delete a imagem anterior no disco
-		if (imageUpdated) {
-			if (req.file) {
-				filename = imageBD.name
-				await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
-			}
-			return res.sendStatus(200)
-		}
+		if (imageWasUpdated) return res.sendStatus(200)
 
-		return res.status(400).json({ error: 'Imagem não atualizada, erro no servidor' })
+		return res.status(400).json({ error: 'Não foi possível atualizar a imagem' })
 	}
 
 	async deleteImage(req, res) {

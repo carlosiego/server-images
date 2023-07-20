@@ -80,19 +80,19 @@ class ImgProductsRepository {
 	}
 
 	async findByName(name) {
-		let image = await Images.findOne({ where: { name: name } })
 
-		return image;
+		let image = await Images.findOne({ where: { name } })
+
+		return image
 	}
 
-	async update({ codeCurrent, newCode, video }) {
+	async update({ name, main }) {
 
-		let image = await ImageProducts.update(
+		let image = await Images.update(
 			{
-				code: newCode,
-				video: video ? video : undefined
+				main
 			},
-			{ where: { code: codeCurrent } }
+			{ where: { name } }
 		)
 
 		return image;
