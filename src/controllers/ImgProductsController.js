@@ -90,13 +90,15 @@ class ImgProductsController {
 			return res.status(400).json({ error: 'Id tem que ser do tipo número' })
 		}
 
-		let imageProduct = await ImgProductsRepository.findById(id)
+		let image = await ImgProductsRepository.findById(id)
 		let imageWithPath;
 
-		imageWithPath = imageProduct.map(item => ({
-			...item,
-			pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${item.name}`
-		}))
+		if (!image) return res.status(404).json({ error: 'Imagem não encontrada' })
+
+		imageWithPath = {
+			...image.dataValues,
+			pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${image.name}`
+		}
 
 		return res.json(imageWithPath)
 	}
@@ -112,6 +114,8 @@ class ImgProductsController {
 
 		let imageProduct = await ImgProductsRepository.findByCode(code)
 		let imageWithPath;
+
+		if (!image) return res.status(404).json({ error: 'Imagem não encontrada' })
 
 		imageWithPath = imageProduct.map(item => ({
 			...item,
