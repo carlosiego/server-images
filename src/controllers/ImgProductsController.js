@@ -1,5 +1,4 @@
 const ImgProductsRepository = require('../repositories/ImgProductsRepository')
-const HandleImageServer = require('../HandleImageServer')
 const uploadProducts = require('../middlewares/uploadProducts')
 const ProductsRepository = require('../repositories/ProductsRepository')
 
@@ -80,6 +79,26 @@ class ImgProductsController {
 			return res.json(productsCreated)
 		}
 		)
+	}
+
+	async listImageById(req, res) {
+
+		let { id } = req.params
+		id = Number(id)
+
+		if (isNaN(id)) {
+			return res.status(400).json({ error: 'Id tem que ser do tipo número' })
+		}
+
+		let imageProduct = await ImgProductsRepository.findById(id)
+		let imageWithPath;
+
+		imageWithPath = imageProduct.map(item => ({
+			...item,
+			pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${item.name}`
+		}))
+
+		return res.json(imageWithPath)
 	}
 
 	async listImageByCode(req, res) {
@@ -165,21 +184,18 @@ class ImgProductsController {
 		return res.status(400).json({ error: 'Não foi possível atualizar a imagem' })
 	}
 
-	async deleteImage(req, res) {
+	async deleteImageById(req, res) {
 
-		let { code } = req.params
+		let { id } = req.params
+		id = Number(id)
 
-		let image = await ImgProductsRepository.findByCode(code)
+		if (isNaN(id)) {
+			return res.status(400).json({ error: 'Id tem que ser do tipo número' })
+		}
 
-		if (!image) return res.status(400).json({ error: 'Não existe imagem com o código ' + code })
+		await ImgProductsRepository.deleteImageById(id)
 
-		Promise.all([
-			ImgProductsRepository.deleteByCode(code),
-			HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: image.name })
-		])
-
-		res.sendStatus(200)
-
+		return res.sendStatus(200)
 	}
 }
 

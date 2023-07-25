@@ -44,10 +44,27 @@ class ImgProductsRepository {
 		return tableImgProducts;
 	}
 
+	async findById(id) {
+
+		let image = await db.query(
+			`SELECT
+				IMAGES.id,
+				IMAGES.name
+			FROM IMAGES
+			WHERE IMAGES.id = :id;`,
+			{
+				replacements: { id },
+				type: QueryTypes.SELECT,
+			})
+
+		return image;
+	}
+
 	async findByCode(code) {
 
 		let image = await db.query(
 			`SELECT
+				IMAGES.id,
 				IMAGES.name
 			FROM IMGPRODUCTS
 			JOIN IMAGES ON IMGPRODUCTS.image_id = IMAGES.id
@@ -113,11 +130,18 @@ class ImgProductsRepository {
 		return image;
 	}
 
-	async deleteByCode(code) {
+	async deleteImageById(id) {
 
-		await ImageProducts.destroy({ where: { code } })
+		Promise.all([
+			ImgProducts.destroy({ where: { image_id: id } }),
+			Images.destroy({ where: { id } })
+
+		]).then(results => console.log(results))
+			.catch(error => console.log(error))
 
 	}
+
+
 }
 
 module.exports = new ImgProductsRepository()
