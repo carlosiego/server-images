@@ -30,7 +30,6 @@ CREATE TABLE IMGPRODUCTS (
 	product_id INT,
     image_id INT,
     createdBy VARCHAR(200) NOT NULL,
-    updatedBy Varchar(200),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updateddAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (product_id, image_id),

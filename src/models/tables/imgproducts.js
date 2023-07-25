@@ -24,12 +24,8 @@ const ImgProducts = db.define('IMGPRODUCTS', {
 	createdBy: {
 		type: Sequelize.STRING,
 		allowNull: false
-	},
-
-	updatedBy: {
-		type: Sequelize.STRING,
-		allowNull: true
 	}
+
 });
 
 // ImgProducts.sync()
