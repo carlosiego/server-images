@@ -115,7 +115,7 @@ class ImgProductsController {
 		let imageProduct = await ImgProductsRepository.findByCode(code)
 		let imageWithPath;
 
-		if (!image) return res.status(404).json({ error: 'Imagem não encontrada' })
+		if (!imageProduct) return res.status(404).json({ error: 'Imagem não encontrada' })
 
 		imageWithPath = imageProduct.map(item => ({
 			...item,
