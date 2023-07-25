@@ -4,7 +4,7 @@ const ImgProductsRoutes = express.Router()
 
 ImgProductsRoutes
 
-	.get(`/images/products/code/:code`, ImgProductsController.listImageByCode)
+	.get(`/images/products/code/:code`, ImgProductsController.listImagesByCode)
 	.get(`/images/products/codes/:codes`, ImgProductsController.listImagesByCodes)
 	.get(`/images/products/name/:name`, ImgProductsController.listImageByName)
 	.get(`/images/products/id/:id`, ImgProductsController.listImageById)

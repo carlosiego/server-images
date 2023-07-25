@@ -103,7 +103,7 @@ class ImgProductsController {
 		return res.json(imageWithPath)
 	}
 
-	async listImageByCode(req, res) {
+	async listImagesByCode(req, res) {
 
 		let { code } = req.params
 		code = Number(code)
