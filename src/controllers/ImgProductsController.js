@@ -161,23 +161,28 @@ class ImgProductsController {
 		return res.json(image)
 	}
 
-	async updateImageByName(req, res) {
+	async updateImageById(req, res) {
 
-		let { name } = req.params
+		let { id } = req.params
 		let { main } = req.body
 
 		main = Number(main)
+		id = Number(id)
+
+		if (isNaN(id)) {
+			return res.status(400).json({ error: 'Id tem que ser do tipo número' })
+		}
 
 		if (!main && main !== 0) return res.status(400).json({ error: 'Main tem que ser do tipo número' })
 		if (main !== 0 && main !== 1) return res.status(400).json({ error: 'Main tem que ser 0 ou 1' })
 
-		let image = await ImgProductsRepository.findByName(name)
+		let image = await ImgProductsRepository.findById(id)
 		if (!image) return res.status(404).json({ error: 'Imagem não encontrada' })
 
 		if (image.main && main === 1) return res.json({ message: 'Imagem já é principal' })
 		if (!image.main && main === 0) return res.json({ message: 'Imagem já é secundária' })
 
-		let imageWasUpdated = await ImgProductsRepository.update({ name, main })
+		let imageWasUpdated = await ImgProductsRepository.updateById({ id, main })
 
 		if (imageWasUpdated) return res.sendStatus(200)
 

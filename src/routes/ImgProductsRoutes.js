@@ -8,7 +8,7 @@ ImgProductsRoutes
 	.get(`/images/products/codes/:codes`, ImgProductsController.listImagesByCodes)
 	.get(`/images/products/name/:name`, ImgProductsController.listImageByName)
 	.get(`/images/products/id/:id`, ImgProductsController.listImageById)
-	.put(`/images/products/name/:name`, ImgProductsController.updateImageByName)
+	.put(`/images/products/id/:id`, ImgProductsController.updateImageById)
 	.post(`/images/product/code/:code`, ImgProductsController.createImage)
 	.post(`/images/products/codes/:codes`, ImgProductsController.createImageWithManyCodes)
 	.delete(`/images/products/id/:id`, ImgProductsController.deleteImageById)

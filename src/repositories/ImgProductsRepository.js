@@ -46,16 +46,7 @@ class ImgProductsRepository {
 
 	async findById(id) {
 
-		let image = await db.query(
-			`SELECT
-				IMAGES.id,
-				IMAGES.name
-			FROM IMAGES
-			WHERE IMAGES.id = :id;`,
-			{
-				replacements: { id },
-				type: QueryTypes.SELECT,
-			})
+		let image = await Images.findOne({ where: { id } })
 
 		return image;
 	}
@@ -103,13 +94,13 @@ class ImgProductsRepository {
 		return image
 	}
 
-	async update({ name, main }) {
+	async updateById({ id, main }) {
 
 		let image = await Images.update(
 			{
 				main
 			},
-			{ where: { name } }
+			{ where: { id } }
 		)
 
 		return image;
