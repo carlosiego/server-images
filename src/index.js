@@ -1,12 +1,6 @@
 require('dotenv').config()
 require('express-async-errors')
 
-require('./models/tables/images')
-require('./models/tables/imglocations')
-require('./models/tables/imgproducts')
-require('./models/tables/imgproductslocations')
-require('./models/tables/products')
-
 const express = require('express')
 const routes = require('./routes/index.js')
 const path = require('path')
