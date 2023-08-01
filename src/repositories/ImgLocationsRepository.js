@@ -1,71 +1,71 @@
-const ImageLocations = require('../models/tables/imglocations')
+// const ImageLocations = require('../models/tables/imglocations')
 
-class ImgLocationsRepository {
+// class ImgLocationsRepository {
 
-	async create({ name, size, storehouse, street, side, shelf, column, description, code }) {
+// 	async create({ name, size, storehouse, street, side, shelf, column, description, code }) {
 
-		let image = await ImageLocations.create({
-			code, name, size, storehouse, street, side, shelf, column, description
-		})
+// 		let image = await ImageLocations.create({
+// 			code, name, size, storehouse, street, side, shelf, column, description
+// 		})
 
-		return image;
-	}
+// 		return image;
+// 	}
 
-	async findByCode(code) {
+// 	async findByCode(code) {
 
-		let images = await ImageLocations.findAll({ where: { code } })
+// 		let images = await ImageLocations.findAll({ where: { code } })
 
-		return images;
-	}
+// 		return images;
+// 	}
 
-	async findByName(name) {
+// 	async findByName(name) {
 
-		let image = await ImageLocations.findOne({ where: { name } })
+// 		let image = await ImageLocations.findOne({ where: { name } })
 
-		return image;
-	}
+// 		return image;
+// 	}
 
-	async update({ nameCurrent, code, storehouse, street, side, shelf, column, description }) {
+// 	async update({ nameCurrent, code, storehouse, street, side, shelf, column, description }) {
 
-		let image = await ImageLocations.update(
-			{
-				storehouse: storehouse || undefined,
-				street: street,
-				side: side,
-				shelf: shelf,
-				column: column,
-				description: description,
-				code: code || undefined
-			},
-			{ where: { name: nameCurrent } })
+// 		let image = await ImageLocations.update(
+// 			{
+// 				storehouse: storehouse || undefined,
+// 				street: street,
+// 				side: side,
+// 				shelf: shelf,
+// 				column: column,
+// 				description: description,
+// 				code: code || undefined
+// 			},
+// 			{ where: { name: nameCurrent } })
 
-		return image;
-	}
+// 		return image;
+// 	}
 
-	async updateAll({ nameCurrent, filename, code, size, storehouse, street, side, shelf, column, description }) {
+// 	async updateAll({ nameCurrent, filename, code, size, storehouse, street, side, shelf, column, description }) {
 
-		let image = await ImageLocations.update(
-			{
-				name: filename,
-				size,
-				storehouse: storehouse || undefined,
-				street: street,
-				side: side,
-				shelf: shelf,
-				column: column,
-				description: description,
-				code: code || undefined
-			},
-			{ where: { name: nameCurrent } })
+// 		let image = await ImageLocations.update(
+// 			{
+// 				name: filename,
+// 				size,
+// 				storehouse: storehouse || undefined,
+// 				street: street,
+// 				side: side,
+// 				shelf: shelf,
+// 				column: column,
+// 				description: description,
+// 				code: code || undefined
+// 			},
+// 			{ where: { name: nameCurrent } })
 
-		return image;
-	}
+// 		return image;
+// 	}
 
-	async deleteByName(name) {
+// 	async deleteByName(name) {
 
-		await ImageLocations.destroy({ where: { name } })
+// 		await ImageLocations.destroy({ where: { name } })
 
-	}
-}
+// 	}
+// }
 
-module.exports = new ImgLocationsRepository()
+// module.exports = new ImgLocationsRepository()
