@@ -24,6 +24,17 @@ class ImgProductsRepository {
 		return tableImgProducts;
 	}
 
+	async createAssociationImageAndProduct({ code, createdBy, id }) {
+
+		let tableImgProducts = await ImgProducts.create({
+			product_id: code,
+			image_id: id,
+			createdBy
+		})
+
+		return tableImgProducts;
+	}
+
 	async createImageWithManyCodes({ filename, size, main, imagesProductsToCreate }) {
 
 		main = main == 1 ? 1 : 0
@@ -49,6 +60,17 @@ class ImgProductsRepository {
 		let image = await Images.findOne({ where: { id } })
 
 		return image;
+	}
+
+	async findImageByIdAndCode(code, id) {
+		let image = await ImgProducts.findOne({
+			where: {
+				product_id: code,
+				image_id: id
+			}
+		})
+
+		return image
 	}
 
 	async findByCode(code) {

@@ -10,6 +10,7 @@ ImgProductsRoutes
 	.get(`/images/products/id/:id`, ImgProductsController.listImageById)
 	.put(`/images/products/id/:id`, ImgProductsController.updateImageById)
 	.post(`/images/product/code/:code`, ImgProductsController.createImage)
+	.post(`/images/product/association/code/:code`, ImgProductsController.createAssociation)
 	.post(`/images/products/codes/:codes`, ImgProductsController.createImageWithManyCodes)
 	.delete(`/images/products/id/:id`, ImgProductsController.deleteImageById)
 

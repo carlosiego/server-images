@@ -36,6 +36,43 @@ class ImgProductsController {
 		})
 	}
 
+	async createAssociation(req, res) {
+
+		let { createdBy, id } = req.body
+		let { code } = req.params
+
+		code = Number(code)
+
+		if (isNaN(code)) return res.status(400).json({ error: 'Código tem que ser do tipo número' })
+
+		if (typeof code !== 'number') return res.status(400).json({ error: 'Código tem que ser do tipo número' })
+
+		if (!createdBy) return res.status(400).json({ error: 'Criador da Imagem é requerido' })
+
+		let productExist = await ProductsRepository.findByCode(code)
+		if (!productExist) return res.status(404).json({ error: 'Produto não existe' })
+
+		id = Number(id)
+
+		if (isNaN(id)) {
+			return res.status(400).json({ error: 'Id tem que ser do tipo número' })
+		}
+
+		let image = await ImgProductsRepository.findById(id)
+
+		if (!image) return res.status(404).json({ error: 'Imagem não encontrada' })
+
+		let ImageExistsInTableImgProducts = await ImgProductsRepository.findImageByIdAndCode(code, id)
+
+		if (ImageExistsInTableImgProducts) return res.status(400).json({ error: 'Produto já associado com essa imagem' })
+
+		let imageCreated = await ImgProductsRepository.createAssociationImageAndProduct({ code, createdBy, id })
+
+		if (!imageCreated) return res.status(400).json({ error: "Não foi possível criar a associação com a imagem" })
+
+		return res.json(imageCreated)
+	}
+
 	async createImageWithManyCodes(req, res) {
 
 		let { main, createdBy } = req.query
