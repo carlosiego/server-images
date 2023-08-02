@@ -1,65 +1,55 @@
-const ImageProducts = require('../models/imgproducts')
+const Products = require('../models/tables/products')
+const { Op } = require('sequelize')
 
 class ProductsRepository {
 
-    async create({ code, filename, size, video }) {
+	async createProduct(code, link) {
 
-        let imageProduct = await ImageProducts.create({
-            code,
-            name: filename,
-            size,
-            video
-        })
+		let product = await Products.create({
+			code,
+			link
+		})
 
-        return imageProduct;
-    }
+		return product;
+	}
 
-    async findByCode(code) {
+	async findByCode(code) {
 
-        let image = await ImageProducts.findOne({ where: { code: code } })
+		let product = await Products.findOne({
+			where: { code }
+		})
 
-        return image;
-    }
+		return product;
+	}
 
-    async findByName(name) {
-        let image = await ImageProducts.findOne({ where: { name: name } })
+	async findByCodes(codes) {
 
-        return image;
-    }
+		let products = await Products.findAll({
+			where: {
+				code: {
+					[Op.in]: codes
+				}
+			}
+		})
 
-    async update({ codeCurrent, newCode, video }) {
+		return products;
+	}
 
-        let image = await ImageProducts.update(
-            {
-                code: newCode,
-                video: video ? video : undefined
-            },
-            { where: { code: codeCurrent } }
-        )
+	async updateImage(code, link) {
 
-        return image;
-    }
+		let productWasRenewed = Products.update({
+			link
+		}, { where: { code } })
 
-    async updateAll({ name, codeCurrent, newCode, video, size }) {
+		return productWasRenewed;
+	}
 
-        let image = await ImageProducts.update(
-            {
-                name,
-                code: newCode,
-                video: video ? video : undefined,
-                size
-            },
-            { where: { code: codeCurrent } }
-        )
+	async deleteProduct(code) {
 
-        return image;
-    }
+		let productDeleted = await Products.destroy({ where: { code } })
 
-    async deleteByCode(code) {
-
-        await ImageProducts.destroy({ where: { code } })
-
-    }
+		return productDeleted
+	}
 }
 
 module.exports = new ProductsRepository()

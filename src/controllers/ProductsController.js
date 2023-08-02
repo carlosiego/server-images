@@ -1,138 +1,79 @@
 const ProductsRepository = require('../repositories/ProductsRepository')
-const HandleImageServer = require('../HandleImageServer')
 
 class ProductsController {
 
+	async createProduct(req, res) {
 
-    async createImage(req, res) {
+		let { code, link } = req.body
 
-        if (!req.file) {
-            return res.status(400).json({ error: 'Imagem é requerida' })
-        }
+		if (typeof code === 'string') return res.status(400).json({ error: 'Código tem que ser do tipo número' })
 
-        let { filename, size } = req.file
-        let { video, code } = req.body
-        code = Number(code)
+		const productExists = await ProductsRepository.findByCode(code)
 
-        if (isNaN(code)) {
-            if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-            return res.status(400).json({ error: `Código tem que ser do tipo número` })
-        }
+		if (productExists) return res.status(400).json({ error: 'Produto já existe' })
 
-        if (!code) {
-            return res.status(400).json({ error: 'Código é requerido' })
-        }
+		const product = await ProductsRepository.createProduct(code, link)
 
-        let imageExists = await ProductsRepository.findByCode(code)
+		return res.json(product)
+	}
 
-        if (imageExists) {
-            await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
-            return res.status(400).json({ error: `Já existe imagem com o código ${code}` })
-        }
+	async listProduct(req, res) {
 
-        let imageCreated = await ProductsRepository.create({ code, filename, size, video })
+		let { code } = req.params
 
-        return res.json(imageCreated)
-    }
+		const product = await ProductsRepository.findByCode(code)
 
-    async listImage(req, res) {
+		if(!product) return res.status(404).json({error: 'Produto não encontrado'})
 
-        const { code } = req.params
+		return res.json(product)
+	}
 
-        let imageProduct = await ProductsRepository.findByCode(code)
-        let imageWithPath = {};
+	async listProducts(req, res) {
 
-        if (imageProduct) {
-            imageWithPath = {
-                ...imageProduct.dataValues,
-                pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${imageProduct.name}`
-            }
-        }
+		let { codes } = req.params
 
-        return res.json(imageWithPath)
-    }
+		try {
+			codes = JSON.parse(codes)
+		} catch {
+			return res.status(400).json({ error: 'Códigos tem que ser do tipo número' })
+		}
 
-    async updateImage(req, res) {
+		let products = await ProductsRepository.findByCodes(codes)
 
-        let codeCurrent = req.params.code
-        let { video, code: newCode } = req.body
-        
-        let filename;
-        // 1° Verificando se existe novo código!
-        // Se não existir e a requisição tiver uma imagem, exclua a imagem !
-        newCode = Number(newCode)
+		return res.json(products)
+	}
 
-        if (isNaN(newCode)) {
-            if (req.file) await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-            return res.status(400).json({ error: `Código tem que ser do tipo número` })
-        }
+	async updateProduct(req, res) {
 
-        if (!newCode) {
-            if (req.file) {
-                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-            }
-            return res.status(404).json({ error: 'Novo Código é requerido' })
-        }
+		let { link } = req.body
+		let { code } = req.params
 
-        // 2° Verificando se a imagem a ser modificada existe!
-        // Se a imagem a ser modificada não existir, exclua a imagem enviada!
-        let imageBD = await ProductsRepository.findByCode(codeCurrent)
-        if (!imageBD) {
-            if (req.file) {
-                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-            }
-            return res.status(404).json({ error: `Imagem com o código ${codeCurrent} não encontrada` })
-        }
+		const productExists = await ProductsRepository.findByCode(code)
 
-        // 3° Verificando se o novo código já está em uso!
-        let newCodeInUse;
-        if (codeCurrent !== newCode) {
-            newCodeInUse = await ProductsRepository.findByCode(newCode)
-        }
-        // Se o novo código já estiver em uso por outra imagem que não é a que vai ser atualizada, exclua a imagem enviada!
-        if (newCodeInUse) {
-            if (req.file) {
-                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: req.file.filename })
-            }
-            return res.status(400).json({ error: `O código ${newCode} já está em uso` })
-        }
+		if (!productExists) return res.status(404).json({ error: 'Produto não encontrado' })
 
-        let imageUpdated;
-        // 4° Verificando se existe imagem na requisição!
-        if (req.file) {
-            let { filename: name, size } = req.file
-            imageUpdated = await ProductsRepository.updateAll({ name, codeCurrent, newCode, video, size })
-        } else {
-            imageUpdated = await ProductsRepository.update({ codeCurrent, newCode, video })
-        }
-        // 5° Verificando se imagem foi atualizada no banco de dados, e se sim delete a imagem anterior no disco
-        if (imageUpdated) {
-            if (req.file) {
-                filename = imageBD.name
-                await HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename })
-            }
-            return res.sendStatus(200)
-        }
+		const productWasRenewed = await ProductsRepository.updateImage(code, link)
 
-        return res.status(400).json({ error: 'Imagem não atualizada, erro no servidor' })
-    }
+		if (!productWasRenewed) return res.status(400).json({ error: 'Não foi possível atualizar o produto' })
 
-    async deleteImage(req, res) {
+		return res.sendStatus(200)
+	}
 
-        let { code } = req.params
+	async deleteProduct(req, res) {
 
-        let image = await ProductsRepository.findByCode(code)
+		let { code } = req.params
 
-        if(!image) return res.status(400).json({error: 'Não existe imagem com o código ' + code})
+		let productExists = await ProductsRepository.findByCode(code)
 
-        Promise.all([
-            ProductsRepository.deleteByCode(code),
-            HandleImageServer.deleteImage({ dir: process.env.DIR_IMAGES_PRODUCTS, filename: image.name })
-        ])
+		if (!productExists) return res.status(404).json({ error: 'Produto não encontrado' })
 
-        res.sendStatus(200)
+		let productDeleted = await ProductsRepository.deleteProduct(code)
 
-    }
+		if (!productDeleted) return res.status(400).json({ error: 'Não foi possível deletar o produto' })
+
+		return res.sendStatus(200)
+	}
+
 }
 
 module.exports = new ProductsController()
