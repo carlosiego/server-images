@@ -1,6 +1,9 @@
 const ImgProductsRepository = require('../repositories/ImgProductsRepository')
 const uploadProducts = require('../middlewares/uploadProducts')
 const ProductsRepository = require('../repositories/ProductsRepository')
+const s3 = require('../utils/aws.config')
+const path = require('path')
+const fs = require('fs')
 
 class ImgProductsController {
 
@@ -24,15 +27,52 @@ class ImgProductsController {
 		uploadProducts.single('image')(req, res, async (err) => {
 			if (err) {
 				console.log(err)
-				return res.status(400).json({ error: 'Erro no upload da imagem' })
+				return res.status(400).json({ error: 'Erro ao fazer o upload' })
 			}
 
 			let { filename, size } = req.file
 
-			productCreated = await ImgProductsRepository.createImage({ filename, size, main, code, createdBy })
+			try {
+				productCreated = await ImgProductsRepository.createImage({ filename, size, main, code, createdBy })
+			} catch (err) {
+				console.log(err)
+				await fs.promises.unlink(originalPath, (err) => {
+					if (err) {
+						console.log(err)
+					}
+				})
+				return res.status(400).json({ error: 'Erro ao fazer upload' })
+			}
+
+			const originalPath = path.resolve(__dirname, "..", "..", "tmp", filename)
+			const fileContent = await fs.promises.readFile(originalPath)
+
+			const params = {
+				Bucket: process.env.BUCKET_PRODUCTS,
+				Key: filename,
+				Body: fileContent
+			}
+
+			s3.upload(params, async (err, data) => {
+				if (err) {
+					console.log(err)
+					await fs.promises.unlink(originalPath, (err) => {
+						if (err) {
+							console.log(err)
+						}
+					})
+					return res.status(400).json({ error: 'Erro ao fazer o upload' })
+				}
+
+				console.log('Upload realizado com sucesso:', data.Location)
+			})
+			await fs.promises.unlink(originalPath, (err) => {
+				if (err) {
+					console.log(err)
+				}
+			})
 
 			return res.json(productCreated)
-
 		})
 	}
 
