@@ -182,7 +182,7 @@ class ImgProductsController {
 						}
 					})
 					await this.deleteImageById(imagesCreated[0].image_id)
-					return res.status(400).json({ error: 'Erro ao fazer o upload' })
+					return res.status(400).json({ error: 'Erro ao fazer o upload na aws-s3' })
 				}
 
 				console.log('Upload realizado com sucesso:', data.Location)
@@ -324,7 +324,25 @@ class ImgProductsController {
 			return res.status(400).json({ error: 'Id tem que ser do tipo número' })
 		}
 
+		let image = await ImgProductsRepository.findById(id)
+
+		if (image === null) {
+			return res.status(404).json({ error: 'Imagem não encontrada' })
+		}
+
 		await ImgProductsRepository.deleteImageById(id)
+
+		const params = {
+			Bucket: process.env.BUCKET_PRODUCTS,
+			Key: image.name,
+		}
+
+		s3.deleteObject(params, (err, data) => {
+			if (err) {
+				console.log('Erro ao excluir imagem na aws-s3: ' + data)
+				return res.json(400).json({ error: 'Erro ao excluir imagem na aws-s3' })
+			}
+		})
 
 		return res.sendStatus(200)
 	}
