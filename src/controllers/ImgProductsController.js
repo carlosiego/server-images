@@ -262,7 +262,7 @@ class ImgProductsController {
 		const uniqueImagesMainWithPath = images.reduce((result, image) => {
 			const existingImage = result.find((obj) => obj.product_id === image.product_id);
 			if (!existingImage) {
-				const pathimage = `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${image.name}`;
+				const pathimage = `https://${process.env.BUCKET_PRODUCTS}.s3.sa-east-1.amazonaws.com/${image.name}`;
 				result.push({ ...image, pathimage });
 			}
 			return result;
