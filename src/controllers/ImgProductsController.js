@@ -32,6 +32,9 @@ class ImgProductsController {
 
 			let { filename, size } = req.file
 
+			const originalPath = path.resolve(__dirname, "..", "..", "tmp", filename)
+			const fileContent = await fs.promises.readFile(originalPath)
+
 			try {
 				imageCreated = await ImgProductsRepository.createImage({ filename, size, main, code, createdBy })
 			} catch (err) {
@@ -43,9 +46,6 @@ class ImgProductsController {
 				})
 				return res.status(400).json({ error: 'Erro ao fazer upload' })
 			}
-
-			const originalPath = path.resolve(__dirname, "..", "..", "tmp", filename)
-			const fileContent = await fs.promises.readFile(originalPath)
 
 			const params = {
 				Bucket: process.env.BUCKET_PRODUCTS,
@@ -59,7 +59,6 @@ class ImgProductsController {
 					await fs.promises.unlink(originalPath, (err) => {
 						if (err) {
 							console.log(err)
-
 						}
 					})
 					await this.deleteImageById(imageCreated.image_id)
@@ -121,7 +120,7 @@ class ImgProductsController {
 		let { codes } = req.params
 		let productsExist = []
 		let imagesProductsToCreate
-		let productsCreated
+		let imagesCreated
 
 		if (!createdBy) return res.status(400).json({ error: 'Criador da Imagem é requerido' })
 
@@ -153,9 +152,48 @@ class ImgProductsController {
 				createdBy
 			}))
 
-			productsCreated = await ImgProductsRepository.createImageWithManyCodes({ filename, size, main, imagesProductsToCreate })
+			const originalPath = path.resolve(__dirname, "..", "..", "tmp", filename)
+			const fileContent = await fs.promises.readFile(originalPath)
 
-			return res.json(productsCreated)
+			try {
+				imagesCreated = await ImgProductsRepository.createImageWithManyCodes({ filename, size, main, imagesProductsToCreate })
+			} catch (err) {
+				console.log(err)
+				await fs.promises.unlink(originalPath, (err) => {
+					if (err) {
+						console.log(err)
+					}
+				})
+				return res.status(400).json({ error: 'Erro ao fazer upload' })
+			}
+
+			const params = {
+				Bucket: process.env.BUCKET_PRODUCTS,
+				Key: filename,
+				Body: fileContent
+			}
+
+			s3.upload(params, async (err, data) => {
+				if (err) {
+					console.log(err)
+					await fs.promises.unlink(originalPath, (err) => {
+						if (err) {
+							console.log(err)
+						}
+					})
+					await this.deleteImageById(imagesCreated[0].image_id)
+					return res.status(400).json({ error: 'Erro ao fazer o upload' })
+				}
+
+				console.log('Upload realizado com sucesso:', data.Location)
+			})
+			await fs.promises.unlink(originalPath, (err) => {
+				if (err) {
+					console.log(err)
+				}
+			})
+
+			return res.json(imagesCreated)
 		}
 		)
 	}
