@@ -229,17 +229,17 @@ class ImgProductsController {
 			return res.status(400).json({ error: 'Código tem que ser do tipo número' })
 		}
 
-		let imageProduct = await ImgProductsRepository.findByCode(code)
-		let imageWithPath;
+		let imagesProduct = await ImgProductsRepository.findByCode(code)
+		let imagesWithPath;
 
-		if (!imageProduct) return res.status(404).json({ error: 'Imagem não encontrada' })
+		if (!imagesProduct.length) return res.status(404).json({ error: 'Imagens não encontradas' })
 
-		imageWithPath = imageProduct.map(item => ({
-			...item,
-			pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${item.name}`
+		imagesWithPath = imagesProduct.map(image => ({
+			...image,
+			pathimage: `https://${process.env.BUCKET_PRODUCTS}.s3.sa-east-1.amazonaws.com/${image.name}`
 		}))
 
-		return res.json(imageWithPath)
+		return res.json(imagesWithPath)
 	}
 
 	async listImagesByCodes(req, res) {
