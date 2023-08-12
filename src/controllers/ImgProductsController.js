@@ -214,7 +214,7 @@ class ImgProductsController {
 
 		imageWithPath = {
 			...image.dataValues,
-			pathimage: `http://${process.env.SERVER_ADDRESS}:${process.env.PORT}/files/${process.env.DIR_IMAGES_PRODUCTS}/${image.name}`
+			pathimage: `https://${process.env.BUCKET_PRODUCTS}.s3.sa-east-1.amazonaws.com/${image.name}`
 		}
 
 		return res.json(imageWithPath)
