@@ -279,7 +279,12 @@ class ImgProductsController {
 
 		if (!image) return res.status(404).json({ error: 'Imagem não encontrada' })
 
-		return res.json(image)
+		let imageWithPath = {
+			...image.dataValues,
+			pathimage: `https://${process.env.BUCKET_PRODUCTS}.s3.sa-east-1.amazonaws.com/${image.name}`
+		}
+
+		return res.json(imageWithPath)
 	}
 
 	async updateImageById(req, res) {
