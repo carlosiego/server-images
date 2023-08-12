@@ -11,7 +11,7 @@ class ImgProductsController {
 
 		let { main, createdBy } = req.query
 		let { code } = req.params
-		let productCreated
+		let imageCreated
 
 		code = Number(code)
 
@@ -33,7 +33,7 @@ class ImgProductsController {
 			let { filename, size } = req.file
 
 			try {
-				productCreated = await ImgProductsRepository.createImage({ filename, size, main, code, createdBy })
+				imageCreated = await ImgProductsRepository.createImage({ filename, size, main, code, createdBy })
 			} catch (err) {
 				console.log(err)
 				await fs.promises.unlink(originalPath, (err) => {
@@ -59,8 +59,10 @@ class ImgProductsController {
 					await fs.promises.unlink(originalPath, (err) => {
 						if (err) {
 							console.log(err)
+
 						}
 					})
+					await this.deleteImageById(imageCreated.image_id)
 					return res.status(400).json({ error: 'Erro ao fazer o upload' })
 				}
 
@@ -72,7 +74,7 @@ class ImgProductsController {
 				}
 			})
 
-			return res.json(productCreated)
+			return res.json(imageCreated)
 		})
 	}
 

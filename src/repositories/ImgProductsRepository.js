@@ -130,7 +130,7 @@ class ImgProductsRepository {
 
 	async updateAll({ name, codeCurrent, newCode, video, size }) {
 
-		let image = await ImageProducts.update(
+		let image = await ImgProducts.update(
 			{
 				name,
 				code: newCode,
